@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Affectation des engins pour {{ navire.nom }}</h2>
+    <p>Type de marchandise: {{ navire.get_type_marchandise_display }}</p>
+    
+    <div class="alert alert-info">
+        Engins disponibles: {{ engins_disponibles }}
+    </div>
+    
+    <form method="post" action="{% url 'affecter_engins' navire.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">
+            Valider l'affectation
+        </button>
+        <a href="{% url 'detail_navire' navire.id %}" class="btn btn-secondary">
+            Passer sans affecter d'engins
+        </a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Feuille de Service - {{ navire.nom }}</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Engin</th>
+            <th>Conducteur</th>
+            <th>Nombre Engins</th>
+            <th>Date Affectation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for affectation in affectations %}
+        <tr>
+            <td>{{ affectation.engin.nom }}</td>
+            <td>{{ affectation.conducteur.nom_complet }}</td>
+            <td>{{ affectation.nombre_engins }}</td>
+            <td>{{ affectation.date_affectation }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

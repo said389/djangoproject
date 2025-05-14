@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marsa Maroc Agadir - Portail de Connexion</title>
+    <meta name="description" content="Portail de connexion Marsa Maroc Agadir" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmedia-exp1.licdn.com%2Fdms%2Fimage%2FC511BAQEZeEsukdT4vw%2Fcompany-background_10000%2F0%2F1519797761716%3Fe%3D2159024400%26v%3Dbeta%26t%3DfYRZ0JlKgZhVLN5-Z8f4ZxF1Sg943adisZE02TVdoeY&f=1&nofb=1&ipt=254ba1f4f7f5a0b60819463c12062470746cac8c903a7ec243ef836c556c2359");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo img {
+            height: 64px;
+            max-width: 100%;
+        }
+
+        .title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+
+        .input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0EA5E9;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .submit-button:hover {
+            background: #0284C7;
+            transform: translateY(-2px);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .help-text {
+            margin-top: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .help-text p {
+            margin-bottom: 0.5rem;
+        }
+
+        .help-text a {
+            color: #0EA5E9;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .help-text a:hover {
+            color: #38bdf8;
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">
+                <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.boursenews.ma%2Fuploads%2Factualites%2F67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png&f=1&nofb=1&ipt=da9491c6a83d28ea6cef124ae871754f3a8969183573e68172824e1f4691c505" alt="Logo Marsa Maroc">
+            </div>
+
+            <h2 class="title">Connexion</h2>
+
+            {% if messages %}
+                <div class="error-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="POST" action="" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" class="input" placeholder="votre@email.com" required>
+                </div>
+                
+                <div class="form-group password-container">
+                    <label for="mot_de_passe">Mot de passe</label>
+                    <input type="password" name="mot_de_passe" id="mot_de_passe" class="input" placeholder="••••••••" required>
+                    <button type="button" class="toggle-password" id="togglePassword"><👁️/button>
+                </div>
+                
+                <button type="submit" class="submit-button">Se connecter</button>
+            </form>
+
+            
+        
+
+            
+
+            <div class="help-text">
+                <p><strong>Mot de passe oublié ?</strong></p>
+                <p>Veuillez contacter l'administration de Marsa Maroc - Agadir par :</p>
+                <p>E-mail : <a href="mailto:marsamaroc@marsamaroc.co.ma">marsamaroc@marsamaroc.co.ma</a></p>
+                <p>Téléphone : <a href="tel:+212528843700">+212 5 28 84 37 00</a></p>
+            </div>
+
+            <div class="footer">
+                Tous droits réservés © 2025 | Marsa Maroc Agadir
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const password = document.getElementById('mot_de_passe');
+            const loginForm = document.getElementById('loginForm');
+
+            if (togglePassword && password) {
+                togglePassword.addEventListener('click', function() {
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+                });
+            }
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    // Validation supplémentaire peut être ajoutée ici
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('mot_de_passe').value;
+                    
+                    if (!email || !password) {
+                        e.preventDefault();
+                        alert('Veuillez remplir tous les champs');
+                    }
+                });
+            }
+        });
+    </script>
+    
+</body>
+</html>

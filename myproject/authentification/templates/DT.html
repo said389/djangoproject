@@ -1,0 +1,646 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Engins - Marsa Maroc Agadir</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles communs */
+        :root {
+            --primary: #003366;
+            --primary-light: #004c99;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --accent: #e74c3c;
+            --accent-dark: #c0392b;
+            --light: #ecf0f1;
+            --light-gray: #f5f6fa;
+            --dark: #34495e;
+            --gray: #95a5a6;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --border-radius: 6px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Layout Principal */
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--primary);
+            color: white;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: var(--transition);
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .nav-menu {
+            margin-top: 20px;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            border-left: 4px solid transparent;
+            font-size: 0.95rem;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .nav-item.active {
+            background: var(--primary-light);
+            border-left: 4px solid var(--secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+            width: 100%;
+        }
+
+        .welcome-banner {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .welcome-banner img {
+            height: 80px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--accent-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        /* Styles spécifiques */
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Tableau des engins */
+        .engins-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            box-shadow: var(--box-shadow);
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .engins-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .engins-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .engins-table tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-available {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-occupied {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .status-maintenance {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .status-out {
+            background-color: var(--dark);
+            color: white;
+        }
+
+        /* Correction pour les boutons d'action */
+        .engins-table td.actions {
+            white-space: nowrap;
+        }
+
+        .engins-table td.actions .btn {
+            padding: 5px 8px;
+            margin: 0 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .engins-table td.actions .btn i {
+            margin-right: 0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: var(--dark);
+            transition: var(--transition);
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Menu mobile */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+        }
+
+        .alert-success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .alert-error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+                position: static;
+                display: none;
+            }
+            
+            .sidebar.active {
+                display: block;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-anchor"></i> PortSys</h2>
+                <p>Chef de Division Technique</p>
+            </div>
+
+            <div class="nav-menu">
+                <a class="nav-item" href="{% url 'accueil' %}">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </a>
+                
+                <a class="nav-item active" href="{% url 'gestion_engins' %}">
+                    <i class="fas fa-truck-moving"></i> Gestion des engins
+                </a>
+
+                <a class="nav-item" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i> Menu
+            </button>
+
+            <div class="welcome-banner">
+                <img src="{% static 'images/marsa-maroc-logo.png' %}" alt="Logo Marsa Maroc">
+                <div class="welcome-content">
+                    <h1>Gestion des Engins Techniques</h1>
+                    <p>Interface d'administration du parc d'engins</p>
+                </div>
+            </div>
+
+            <!-- Messages d'alerte -->
+            {% if messages %}
+            <div class="alert-messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="tabs">
+                <button class="tab {% if not show_add_tab %}active{% endif %}" onclick="openTab('liste')">Liste des Engins</button>
+                <button class="tab {% if show_add_tab %}active{% endif %}" onclick="openTab('ajout')">
+                    Ajouter un Engin
+                </button>
+            </div>
+
+            <div id="liste" class="tab-content {% if not show_add_tab %}active{% endif %}">
+                <div class="card">
+                    <div class="table-controls">
+                        
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Rechercher...">
+                        </div>
+                    </div>
+                    
+                    <table class="engins-table">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Type</th>
+                                <th>Marque</th>
+                                <th>Modèle</th>
+                                <th>Statut</th>
+                                <th>Kilométrage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enginsTableBody">
+                            {% for engin in engins %}
+                            <tr>
+                                <td>{{ engin.matricule }}</td>
+                                <td>{{ engin.type_engin }}</td>
+                                <td>{{ engin.marque }}</td>
+                                <td>{{ engin.modele }}</td>
+                                <td>
+                                    <span class="status-badge 
+                                        {% if engin.statut == 'disponible' %}status-available
+                                        {% elif engin.statut == 'occupe' %}status-occupied
+                                        {% elif engin.statut == 'maintenance' %}status-maintenance
+                                        {% elif engin.statut == 'hors_service' %}status-out
+                                        {% endif %}">
+                                        {{ engin.get_statut_display }}
+                                    </span>
+                                </td>
+                                <td>{{ engin.kilometrage }}</td>
+                                <td class="actions">
+                                    <a href="{% url 'details_engin' engin.id %}" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'modifier_engin' engin.id %}" class="btn btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'confirm_delete' engin.id %}" class="btn btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" style="text-align: center;">Aucun engin enregistré</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ajout" class="tab-content {% if show_add_tab %}active{% endif %}">
+                <div class="card">
+                    <h2 id="formTitle">Ajouter un Engin</h2>
+                    <form id="enginForm" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="engin_id" value="{{ form.instance.id }}">
+                        
+                        <div class="form-grid">
+                            {% for field in form %}
+                                {% if field.name != 'maintenance_info' and field.name != 'commentaires' %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="required">*</span>{% endif %}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="error">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <div class="form-group" id="maintenanceDetails" style="display:{% if form.statut.value == 'maintenance' %}block{% else %}none{% endif %};">
+                                <label for="{{ form.maintenance_info.id_for_label }}">{{ form.maintenance_info.label }}{% if form.maintenance_info.field.required %} <span class="required">*</span>{% endif %}</label>
+                                {{ form.maintenance_info }}
+                                {% if form.maintenance_info.errors %}
+                                    <div class="error">{{ form.maintenance_info.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.commentaires.id_for_label }}">{{ form.commentaires.label }}</label>
+                            {{ form.commentaires }}
+                            {% if form.commentaires.errors %}
+                                <div class="error">{{ form.commentaires.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                Enregistrer
+                            </button>
+                            <a href="{% url 'gestion_engins' %}" class="btn btn-danger">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Afficher/masquer les détails de maintenance selon le statut
+        document.getElementById('id_statut').addEventListener('change', function() {
+            const maintenanceDiv = document.getElementById('maintenanceDetails');
+            if (this.value === 'maintenance') {
+                maintenanceDiv.style.display = 'block';
+                document.getElementById('id_maintenance_info').setAttribute('required', '');
+            } else {
+                maintenanceDiv.style.display = 'none';
+                document.getElementById('id_maintenance_info').removeAttribute('required');
+            }
+        });
+
+        // Fonction pour gérer les onglets
+        function openTab(tabName) {
+            // Masquer tous les contenus d'onglets
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activer l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+            
+            // Si on clique sur l'onglet "Ajouter", rediriger vers la page d'ajout
+            if (tabName === 'ajout') {
+                window.location.href = "{% url 'ajouter_engin' %}";
+            }
+        }
+
+        // Recherche dans le tableau
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const input = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#enginsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        });
+
+        // Initialisation
+        window.onload = function() {
+            // Menu mobile
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Si des erreurs de formulaire, rester sur l'onglet formulaire
+            {% if form.errors %}
+                openTab('ajout');
+            {% endif %}
+        };
+    </script>
+</body>
+</html>
+{% endblock %}

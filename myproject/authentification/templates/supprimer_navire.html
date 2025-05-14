@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">Supprimer le Navire</h2>
+        </div>
+        <div class="card-body">
+            <p>Êtes-vous sûr de vouloir supprimer le navire <strong>{{ navire.nom }}</strong> (IMO: {{ navire.imo }}) ?</p>
+            <p class="text-danger">Cette action est irréversible.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Confirmer la suppression
+                    </button>
+                    <a href="{% url 'detail_navire' navire.id %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

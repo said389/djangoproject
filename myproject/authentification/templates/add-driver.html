@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Conducteur - Marsa Maroc Agadir</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form.css' %}">
+</head>
+<body>
+    <header id="main-header"></header>
+    
+    <main class="container">
+        <div class="page-header">
+            <h2>Ajouter un Conducteur</h2>
+            <a href="{% url 'index' %}" class="btn secondary">Retour au tableau de bord</a>
+        </div>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-container">
+            <form id="driver-form" class="card" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="firstname">Prénom <span class="required">*</span></label>
+                    <input type="text" id="firstname" name="firstname" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastname">Nom <span class="required">*</span></label>
+                    <input type="text" id="lastname" name="lastname" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="matricule">Matricule <span class="required">*</span></label>
+                    <input type="text" id="matricule" name="matricule" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Téléphone <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="CIN">CIN</label>
+                        <input type="text" id="CIN" name="CIN">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="shift-period">Shift <span class="required">*</span></label>
+                        <select id="shift-period" name="shiftPeriod" required>
+                            <option value="">Sélectionnez un shift</option>
+                            <option value="morning">Matin (6h - 14h)</option>
+                            <option value="afternoon">Après-midi (14h - 22h)</option>
+                            <option value="night">Nuit (22h - 6h)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supervisor">Chef de Shift <span class="required">*</span></label>
+                        <select id="supervisor" name="supervisorId" required>
+                            <option value="">Sélectionnez un chef de shift</option>
+                            {% for supervisor in supervisors %}
+                                <option value="{{ supervisor.id }}">{{ supervisor }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Types d'Engins <span class="required">*</span></label>
+                    <div class="checkbox-group" id="equipment-options">
+                        {% for type_engin in types_engins %}
+                        <div class="checkbox">
+                            <input type="checkbox" 
+                                   id="engin-type-{{ forloop.counter }}" 
+                                   name="equipment" 
+                                   value="{{ type_engin }}">
+                            <label for="engin-type-{{ forloop.counter }}">
+                                {{ type_engin }}
+                            </label>
+                        </div>
+                        {% empty %}
+                        <div class="alert alert-warning">
+                            Aucun type d'engin enregistré
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+
+                <div class="form-group">
+                    <label for="address">Adresse</label>
+                    <textarea id="address" name="address" rows="2"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="birthdate">Date de naissance</label>
+                        <input type="date" id="birthdate" name="birthdate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="join-date">Date d'embauche <span class="required">*</span></label>
+                        <input type="date" id="join-date" name="joinDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="reset" class="btn secondary">Annuler</button>
+                    <button type="submit" class="btn primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Marsa Maroc - Agence d'Agadir. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('driver-form');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Récupérer les données du formulaire
+                const formData = new FormData(form);
+                const equipment = Array.from(document.querySelectorAll('input[name="equipment"]:checked'))
+                                      .map(el => el.value);
+                
+                // Convertir FormData en objet JSON
+                const data = {
+                    firstname: formData.get('firstname'),
+                    lastname: formData.get('lastname'),
+                    matricule: formData.get('matricule'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    CIN: formData.get('CIN'),
+                    shiftPeriod: formData.get('shiftPeriod'),
+                    supervisorId: formData.get('supervisorId'),
+                    equipment: equipment,
+                    address: formData.get('address'),
+                    birthdate: formData.get('birthdate'),
+                    joinDate: formData.get('joinDate'),
+                    csrfmiddlewaretoken: formData.get('csrfmiddlewaretoken')
+                };
+        
+                // Envoyer les données via AJAX
+                fetch("{% url 'add_driver' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': data.csrfmiddlewaretoken
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Rediriger vers index après succès
+                        window.location.href = "{% url 'index' %}";
+                    } else {
+                        alert("Erreur: " + (data.error || "Échec de l'ajout"));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Erreur réseau");
+                });
+            });
+        });
+        </script>
+</body>
+</html>

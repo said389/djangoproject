@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord RH - Marsa Maroc Agadir</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        /* Styles pour le modal d'édition */
+        .edit-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .edit-modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 25px;
+            width: 70%;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .edit-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .close-edit-modal {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .close-edit-modal:hover {
+            color: #333;
+        }
+        .edit-modal-title {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .edit-form-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        /* Styles pour les boutons d'action */
+        .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .btn-icon.edit {
+            color: #3498db;
+        }
+        .btn-icon.delete {
+            color: #e74c3c;
+        }
+        .btn-icon:hover {
+            background-color: #f5f5f5;
+        }
+        .icon-edit, .icon-trash {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header"></header>
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <h2>Tableau de bord des Ressources Humaines</h2>
+            <div class="action-buttons">
+                <a href="{% url 'add_driver' %}" id="add-driver-btn" class="btn primary">+ Ajouter un conducteur</a>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <section class="dashboard-card" id="drivers-section">
+                <div class="card-header">
+                    <h3>Liste des conducteurs</h3>
+                    <div class="search-container">
+                        <input type="text" id="driver-search" placeholder="Rechercher...">
+                        <button class="search-btn"><i class="icon-search"></i></button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="drivers-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Matricule</th>
+                                <th>Téléphone</th>
+                                <th>Shift</th>
+                                <th>Chef de Shift</th>
+                                <th>Engins</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drivers-list">
+                            <!-- Dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="drivers-pagination">
+                    <!-- Pagination controls -->
+                </div>
+            </section>
+
+            <section class="dashboard-card" id="absence-section">
+                <div class="card-header">
+                    <h3>Demandes d'absence récentes</h3>
+                    <a href="{% url 'absence_management' %}" class="view-all">Voir tout</a>
+                </div>
+                <ul class="absence-list" id="recent-absences">
+                    <!-- Dynamically populated -->
+                </ul>
+            </section>
+
+            <section class="dashboard-card" id="shifts-section">
+                <div class="card-header">
+                    <h3>FEUILLE DE SERVICE</h3>
+                    <a href="{% url 'daily_shifts' %}" class="view-all">Voir tout</a>
+                </div>
+                <div class="shifts-summary" id="today-shifts">
+                    <!-- Dynamically populated -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal d'édition -->
+    <div id="editDriverModal" class="edit-modal">
+        <div class="edit-modal-content">
+            <div class="edit-modal-header">
+                <h2 class="edit-modal-title">Modifier le conducteur</h2>
+                <span class="close-edit-modal">&times;</span>
+            </div>
+            <div class="edit-form-container">
+                <form id="editDriverForm" class="card">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit-driver-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-firstname">Prénom <span class="required">*</span></label>
+                            <input type="text" id="edit-firstname" name="firstname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-lastname">Nom <span class="required">*</span></label>
+                            <input type="text" id="edit-lastname" name="lastname" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-matricule">Matricule <span class="required">*</span></label>
+                            <input type="text" id="edit-matricule" name="matricule" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-phone">Téléphone <span class="required">*</span></label>
+                            <input type="tel" id="edit-phone" name="phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-email">Email</label>
+                            <input type="email" id="edit-email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-cin">CIN</label>
+                            <input type="text" id="edit-cin" name="CIN">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-shift">Shift <span class="required">*</span></label>
+                            <select id="edit-shift" name="shiftPeriod" required>
+                                <option value="morning">Matin (6h - 14h)</option>
+                                <option value="afternoon">Après-midi (14h - 22h)</option>
+                                <option value="night">Nuit (22h - 6h)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-supervisor">Chef de Shift <span class="required">*</span></label>
+                            <select id="edit-supervisor" name="supervisor" required>
+                                <option value="Said">Said</option>
+                                <option value="Mohamed">Mohamed</option>
+                                <option value="Ahmed">Ahmed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Engins <span class="required">*</span></label>
+                        <div class="checkbox-group" id="edit-equipment">
+                            <div class="checkbox">
+                                <input type="checkbox" id="edit-eq-1" name="equipment" value="Chariot élévateur">
+                                <label for="edit-eq-1">Chariot élévateur</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="edit-eq-2" name="equipment" value="Grue mobile">
+                                <label for="edit-eq-2">Grue mobile</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="edit-eq-3" name="equipment" value="Portique">
+                                <label for="edit-eq-3">Portique</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="edit-eq-4" name="equipment" value="Camion">
+                                <label for="edit-eq-4">Camion</label>
+                            </div>
+                            <div class="checkbox">
+                                <input type="checkbox" id="edit-eq-5" name="equipment" value="Reachstacker">
+                                <label for="edit-eq-5">Reachstacker</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-address">Adresse</label>
+                        <textarea id="edit-address" name="address" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-birthdate">Date de naissance</label>
+                            <input type="date" id="edit-birthdate" name="birthdate">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-join-date">Date d'embauche <span class="required">*</span></label>
+                            <input type="date" id="edit-join-date" name="joinDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary">Enregistrer</button>
+                        <button type="button" class="btn secondary close-edit-modal">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Marsa Maroc - Agence d'Agadir. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        // Fonction pour traduire les shifts en français
+        function getShiftDisplay(shiftPeriod) {
+            const shifts = {
+                'morning': 'Matin (6h - 14h)',
+                'afternoon': 'Après-midi (14h - 22h)',
+                'night': 'Nuit (22h - 6h)'
+            };
+            return shifts[shiftPeriod] || shiftPeriod;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editModal = document.getElementById('editDriverModal');
+            const editForm = document.getElementById('editDriverForm');
+            const closeButtons = document.querySelectorAll('.close-edit-modal');
+            
+            // Charger les conducteurs au démarrage
+            loadDrivers();
+            
+            // Gérer l'ouverture du modal d'édition et la suppression
+            document.addEventListener('click', function(e) {
+                // Bouton Modifier
+                if (e.target.closest('.btn-icon.edit') || e.target.closest('.icon-edit')) {
+                    const btn = e.target.closest('.btn-icon.edit') || e.target.closest('.icon-edit').parentElement;
+                    const driverId = btn.dataset.id;
+                    loadDriverData(driverId);
+                    editModal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                }
+                
+                // Bouton Supprimer
+                if (e.target.closest('.btn-icon.delete') || e.target.closest('.icon-trash')) {
+                    if (confirm('Êtes-vous sûr de vouloir supprimer ce conducteur ?')) {
+                        const btn = e.target.closest('.btn-icon.delete') || e.target.closest('.icon-trash').parentElement;
+                        const driverId = btn.dataset.id;
+                        deleteDriver(driverId);
+                    }
+                }
+            });
+            
+            // Fonction pour supprimer un conducteur
+            function deleteDriver(driverId) {
+                fetch(`/driver/${driverId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadDrivers();
+                        alert('Conducteur supprimé avec succès!');
+                    } else {
+                        alert('Erreur: ' + (data.error || 'Échec de la suppression'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erreur réseau lors de la suppression');
+                });
+            }
+            
+            // Fermer le modal
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    editModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                });
+            });
+            
+            // Fermer quand on clique en dehors du modal
+            window.addEventListener('click', function(e) {
+                if (e.target === editModal) {
+                    editModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Charger les données d'un conducteur spécifique
+            function loadDriverData(driverId) {
+                fetch(`/api/drivers/${driverId}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur de chargement des données');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('edit-driver-id').value = data.id;
+                        document.getElementById('edit-firstname').value = data.firstname;
+                        document.getElementById('edit-lastname').value = data.lastname;
+                        document.getElementById('edit-matricule').value = data.matricule;
+                        document.getElementById('edit-phone').value = data.phone;
+                        document.getElementById('edit-email').value = data.email || '';
+                        document.getElementById('edit-cin').value = data.CIN || '';
+                        document.getElementById('edit-shift').value = data.shiftPeriod;
+                        document.getElementById('edit-supervisor').value = data.supervisor;
+                        document.getElementById('edit-address').value = data.address || '';
+                        document.getElementById('edit-birthdate').value = data.birthdate || '';
+                        document.getElementById('edit-join-date').value = data.joinDate;
+                        
+                        // Cocher les engins appropriés
+                        const equipmentCheckboxes = document.querySelectorAll('#edit-equipment input[type="checkbox"]');
+                        equipmentCheckboxes.forEach(checkbox => {
+                            checkbox.checked = data.equipment.includes(checkbox.value);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Erreur lors du chargement des données du conducteur');
+                    });
+            }
+            
+            // Envoyer les modifications
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const driverId = document.getElementById('edit-driver-id').value;
+                const formData = new FormData(editForm);
+                const selectedEquipment = Array.from(document.querySelectorAll('#edit-equipment input[type="checkbox"]:checked'))
+                                            .map(el => el.value);
+                formData.append('equipment', JSON.stringify(selectedEquipment));
+                
+                fetch(`/driver/${driverId}/update/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        editModal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        loadDrivers();
+                        alert('Modifications enregistrées avec succès!');
+                    } else {
+                        alert('Erreur: ' + (data.error || 'Échec de la mise à jour'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erreur réseau lors de la mise à jour');
+                });
+            });
+            
+            // Fonction pour charger tous les conducteurs
+            function loadDrivers() {
+                fetch("{% url 'api_drivers' %}")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const tbody = document.getElementById('drivers-list');
+                        tbody.innerHTML = '';
+                        
+                        if (data.drivers && data.drivers.length > 0) {
+                            data.drivers.forEach(driver => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${driver.lastname}</td>
+                                    <td>${driver.firstname}</td>
+                                    <td>${driver.matricule}</td>
+                                    <td>${driver.phone}</td>
+                                    <td>${getShiftDisplay(driver.shiftPeriod)}</td>
+                                    <td>${driver.supervisor}</td>
+                                    <td>${driver.equipment.join(', ')}</td>
+                                    <td class="actions">
+                                        <button class="btn-icon edit" data-id="${driver.id}" title="Modifier">
+                                            <i class="icon-edit"></i>
+                                        </button>
+                                        <button class="btn-icon delete" data-id="${driver.id}" title="Supprimer">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        } else {
+                            tbody.innerHTML = '<tr><td colspan="8">Aucun conducteur trouvé</td></tr>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('drivers-list').innerHTML = 
+                            '<tr><td colspan="8">Erreur de chargement des données</td></tr>';
+                    });
+            }
+            
+            // Gérer la recherche
+            document.getElementById('driver-search').addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('#drivers-list tr').forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(term) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2>Détails de l'engin {{ engin.matricule }}</h2>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Matricule</label>
+                <p>{{ engin.matricule }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Type</label>
+                <p>{{ engin.type_engin }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Marque</label>
+                <p>{{ engin.marque }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Modèle</label>
+                <p>{{ engin.modele }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Année de fabrication</label>
+                <p>{{ engin.annee_fabrication }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Statut</label>
+                <p><span class="status-badge 
+                    {% if engin.statut == 'disponible' %}status-available
+                    {% elif engin.statut == 'occupe' %}status-occupied
+                    {% elif engin.statut == 'maintenance' %}status-maintenance
+                    {% elif engin.statut == 'hors_service' %}status-out
+                    {% endif %}">
+                    {{ engin.get_statut_display }}
+                </span></p>
+            </div>
+            
+            {% if engin.statut == 'maintenance' %}
+            <div class="form-group">
+                <label>Détails de maintenance</label>
+                <p>{{ engin.maintenance_info }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label>Date d'acquisition</label>
+                <p>{{ engin.date_acquisition }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Kilométrage/Heures</label>
+                <p>{{ engin.kilometrage }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Prochaine maintenance</label>
+                <p>{{ engin.prochaine_maintenance|default:"Non définie" }}</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Commentaires</label>
+                <p>{{ engin.commentaires|default:"Aucun" }}</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'modifier_engin' engin.id %}" class="btn btn-warning">Modifier</a>
+            <a href="{% url 'gestion_engins' %}" class="btn btn-primary">Retour</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

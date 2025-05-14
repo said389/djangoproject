@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>
+        <i class="fas fa-truck-moving"></i> Conducteurs
+        {% if is_chef %}
+        <small class="text-muted">- Gérés par {{ user.username }} </small>
+        {% endif %}
+    </h2>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Matricule</th>
+                <th>Nom complet</th>
+                <th>Téléphone</th>
+                <th>Shift</th>
+                {% if not is_chef %}<th>Chef d'escale</th>{% endif %}
+                <th>engins</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for conducteur in conducteurs %}
+            <tr>
+                <td>{{ conducteur.matricule }}</td>
+                <td>{{ conducteur.firstname }} {{ conducteur.lastname }}</td>
+                <td>{{ conducteur.phone }}</td>
+                
+                <td>{{ conducteur.get_shiftPeriod_display }}</td>
+                {% if not is_chef %}
+                <td>
+                    {{ conducteur.supervisor.get_full_name|default:conducteur.supervisor.username }}
+                </td>
+                
+                {% endif %}
+                <td>{{ conducteur.equipment }}</td>
+                <td>
+                
+
+                    <a href="#" class="btn btn-sm btn-info">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="{% if is_chef %}5{% else %}6{% endif %}" class="text-center">
+                    Aucun conducteur trouvé
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

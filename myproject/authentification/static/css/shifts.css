@@ -1,0 +1,183 @@
+/* Shifts Styles */
+.date-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+}
+
+.current-date {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    min-width: 200px;
+    text-align: center;
+}
+
+.shifts-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.shift-group {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.shift-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.shift-header h3 {
+    margin-bottom: 0;
+    color: var(--white);
+    font-size: 1.25rem;
+}
+
+.shift-header .badge {
+    background-color: var(--white);
+    color: var(--primary);
+}
+
+.shift-grid {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    min-height: 100px;
+}
+
+.driver-card {
+    background-color: var(--gray-100);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: var(--transition);
+}
+
+.driver-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.driver-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.driver-info {
+    flex: 1;
+}
+
+.driver-name {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 0.25rem;
+}
+
+.driver-equipment {
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    display: flex;
+    align-items: center;
+}
+
+.driver-equipment::before {
+    content: '🚜';
+    margin-right: 0.5rem;
+}
+
+.driver-zone {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-top: 0.5rem;
+}
+
+.driver-zone::before {
+    content: '📍';
+    margin-right: 0.5rem;
+}
+
+.driver-notes {
+    font-size: 0.875rem;
+    color: var(--gray-700);
+    background-color: var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.driver-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.empty-shift {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 100px;
+    color: var(--gray-500);
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.empty-shift-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Morning shift specific */
+#morning-shift .shift-header {
+    background-color: var(--primary);
+}
+
+/* Afternoon shift specific */
+#afternoon-shift .shift-header {
+    background-color: var(--secondary);
+}
+
+/* Night shift specific */
+#night-shift .shift-header {
+    background-color: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .shifts-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .action-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .current-date {
+        font-size: 1.25rem;
+        min-width: 150px;
+    }
+}

@@ -1,0 +1,59 @@
+<!-- templates/affectation/affectation.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Affectation des engins pour {{ navire.nom }}</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Informations du navire</h5>
+            <p><strong>Type marchandise:</strong> {{ type_marchandise.libelle }}</p>
+            <p><strong>Poste:</strong> {{ navire.get_poste_display }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Engins disponibles</h5>
+                </div>
+                <div class="card-body">
+                    {% if engins_disponibles %}
+                        <form method="post" action="{% url 'valider_affectation' navire.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="nombre_engins" class="form-label">
+                                    Nombre d'engins à affecter (max {{ engins_disponibles.count() }})
+                                </label>
+                                <input type="number" class="form-control" id="nombre_engins" 
+                                       name="nombre_engins" min="1" max="{{ engins_disponibles.count() }}" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                Valider l'affectation
+                            </button>
+                        </form>
+                        
+                        <div class="mt-3">
+                            <h6>Liste des engins compatibles:</h6>
+                            <ul class="list-group">
+                                {% for engin in engins_disponibles %}
+                                <li class="list-group-item">
+                                    {{ engin.matricule }} - {{ engin.type_engin }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            Aucun engin disponible pour ce type de marchandise
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

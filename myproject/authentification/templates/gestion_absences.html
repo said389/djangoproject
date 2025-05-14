@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Absences - Marsa Maroc Agadir</title>
+    <style>
+        /* Styles communs */
+        :root {
+            --primary: #003366;
+            --primary-light: #004c99;
+            --primary-dark: #00264d;
+            --secondary: #009999;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-100);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .welcome-banner {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .welcome-banner img {
+            height: 80px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .logout-button {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background-color: #c9302c;
+        }
+
+        /* Styles spécifiques au formulaire d'absence */
+        .card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .file-upload {
+            margin-top: 1rem;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--gray-200);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background-color: var(--gray-600);
+            color: white;
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 1rem;
+            display: none;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+        }
+
+        /* Tableau des absences */
+        .absences-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            box-shadow: var(--box-shadow);
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .absences-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .absences-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .absences-table tr:nth-child(even) {
+            background-color: var(--gray-100);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: var(--warning);
+            color: var(--gray-700);
+        }
+
+        .status-approved {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-rejected {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 5px;
+            color: var(--primary);
+        }
+
+        /* Modal pour les justificatifs */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .proof-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .proof-container img {
+            max-width: 100%;
+            max-height: 500px;
+        }
+
+        .proof-container a {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .proof-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-banner">
+            <img src="https://www.boursenews.ma/uploads/actualites/67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png" alt="Logo Marsa Maroc">
+            <div class="welcome-content">
+                <h1>Bienvenue, {{ user.username }} !</h1> 
+                     <p>Vous êtes connecté en tant que Chef d'Escale.</p>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">Se déconnecter</button>
+                </form>
+            </div>
+        </div>
+
+        <button onclick="location.href='{% url 'chef_escale' %}'" class="btn btn-primary add-vessel-btn">
+            Retour à l'accueil
+        </button>
+        </div>
+
+        <div class="card">
+            <h2>Nouvelle Demande d'Absence</h2>
+            <form id="absence-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="driver">Conducteur <span class="required">*</span></label>
+                        <select id="driver" name="driver" required>
+                            <option value="">Sélectionnez un conducteur</option>
+                            {% for driver in drivers %}
+                                <option value="{{ driver.id }}">{{ driver.firstname }} {{ driver.lastname }} ({{ driver.matricule }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+
+                    <div class="form-group">
+                        <label for="start-date">Date de Début <span class="required">*</span></label>
+                        <input type="date" id="start-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-date">Date de Fin <span class="required">*</span></label>
+                        <input type="date" id="end-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reason">Motif <span class="required">*</span></label>
+                        <select id="reason" required>
+                            <option value="">Sélectionnez un motif</option>
+                            <option value="conge">Congé annuel</option>
+                            <option value="maladie">Maladie</option>
+                            <option value="familial">Raison familiale</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Commentaires</label>
+                    <textarea id="comments" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Justificatif (Photo/Médical) <span class="required">*</span></label>
+                    <div class="file-upload">
+                        <label for="absence-proof" class="file-upload-label">Choisir un fichier</label>
+                        <input type="file" id="absence-proof" class="file-upload-input" accept="image/*,.pdf" required>
+                        <img id="proof-preview" class="preview-image" alt="Aperçu de l'image">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Soumettre la Demande</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Historique des Demandes</h2>
+            <table class="absences-table">
+                <thead>
+                    <tr>
+                        <th>Conducteur</th>
+                        <th>Période</th>
+                        <th>Motif</th>
+                        <th>Statut</th>
+                        <th>Commentaires</th>
+                        <th>Justificatif</th>
+                    </tr>
+                </thead>
+                <tbody id="absences-list">
+                    <!-- Les demandes seront ajoutées ici dynamiquement -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal pour afficher les justificatifs -->
+    <div id="proof-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Justificatif d'absence</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="proof-container" id="proof-content">
+                <!-- Le contenu du justificatif sera ajouté ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion du formulaire
+            const absenceForm = document.getElementById('absence-form');
+            const absencesList = document.getElementById('absences-list');
+            const proofInput = document.getElementById('absence-proof');
+            const proofPreview = document.getElementById('proof-preview');
+            const proofModal = document.getElementById('proof-modal');
+            const closeModal = document.querySelector('.close-modal');
+            
+            // Charger les demandes existantes
+            let demandes = JSON.parse(localStorage.getItem('demandesAbsence')) || [];
+            renderAbsences();
+
+            // Prévisualisation du justificatif
+            proofInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        proofPreview.src = e.target.result;
+                        proofPreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    proofPreview.style.display = 'none';
+                }
+            });
+
+            // Soumission du formulaire
+            absenceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const driverSelect = document.getElementById('driver');
+                const startDate = document.getElementById('start-date');
+                const endDate = document.getElementById('end-date');
+                const reasonSelect = document.getElementById('reason');
+                const comments = document.getElementById('comments');
+                
+                // Vérifier si un fichier a été sélectionné
+                if (!proofInput.files[0]) {
+                    alert('Veuillez sélectionner un justificatif');
+                    return;
+                }
+                
+                // Lire le fichier comme URL de données
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const demande = {
+                        id: Date.now(),
+                        conducteur: driverSelect.options[driverSelect.selectedIndex].text,
+                        debut: startDate.value,
+                        fin: endDate.value,
+                        motif: reasonSelect.options[reasonSelect.selectedIndex].text,
+                        motifValue: reasonSelect.value,
+                        commentaire: comments.value,
+                        statut: 'en attente', // Par défaut en attente
+                        dateDemande: new Date().toLocaleDateString('fr-FR'),
+                        justificatif: {
+                            name: proofInput.files[0].name,
+                            type: proofInput.files[0].type,
+                            data: e.target.result
+                        }
+                    };
+                    
+                    demandes.push(demande);
+                    localStorage.setItem('demandesAbsence', JSON.stringify(demandes));
+                    
+                    alert('Demande envoyée avec succès !');
+                    absenceForm.reset();
+                    proofPreview.style.display = 'none';
+                    renderAbsences();
+                };
+                reader.readAsDataURL(proofInput.files[0]);
+            });
+
+            // Afficher les demandes dans le tableau
+            function renderAbsences() {
+                absencesList.innerHTML = '';
+                
+                demandes.forEach(demande => {
+                    const tr = document.createElement('tr');
+                    
+                    // Calculer la durée
+                    const startDate = new Date(demande.debut);
+                    const endDate = new Date(demande.fin);
+                    const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                    
+                    // Déterminer la classe du statut
+                    let statusClass = 'status-pending';
+                    let statusText = 'En attente';
+                    if (demande.statut === 'accepté') {
+                        statusClass = 'status-approved';
+                        statusText = 'Approuvé';
+                    } else if (demande.statut === 'refusé') {
+                        statusClass = 'status-rejected';
+                        statusText = 'Refusé';
+                    }
+                    
+                    tr.innerHTML = `
+                        <td>${demande.conducteur}</td>
+                        <td>${demande.debut} au ${demande.fin} (${duration} jour(s))</td>
+                        <td>${demande.motif}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${demande.commentaire || '-'}</td>
+                        <td><button class="action-btn" onclick="viewProof(${demande.id})">Voir</button></td>
+                    `;
+                    
+                    absencesList.appendChild(tr);
+                });
+            }
+
+            // Fonction pour afficher le justificatif
+            window.viewProof = function(id) {
+                const demande = demandes.find(d => d.id === id);
+                if (!demande || !demande.justificatif) return;
+                
+                const proofContent = document.getElementById('proof-content');
+                proofContent.innerHTML = '';
+                
+                if (demande.justificatif.type.match('image.*')) {
+                    const img = document.createElement('img');
+                    img.src = demande.justificatif.data;
+                    img.alt = 'Justificatif d\'absence';
+                    proofContent.appendChild(img);
+                } else {
+                    const link = document.createElement('a');
+                    link.href = demande.justificatif.data;
+                    link.textContent = `Télécharger ${demande.justificatif.name}`;
+                    link.download = demande.justificatif.name;
+                    link.target = '_blank';
+                    proofContent.appendChild(link);
+                }
+                
+                proofModal.style.display = 'block';
+            };
+
+            // Fermer le modal
+            closeModal.addEventListener('click', function() {
+                proofModal.style.display = 'none';
+            });
+
+            // Fermer le modal en cliquant à l'extérieur
+            window.addEventListener('click', function(e) {
+                if (e.target === proofModal) {
+                    proofModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

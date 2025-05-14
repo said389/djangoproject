@@ -1,0 +1,469 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Navires - Marsa Maroc Agadir</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fontawesome.min.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #003366;
+            --primary-light: #004c99;
+            --primary-dark: #00264d;
+            --secondary: #009999;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--gray-100);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header img {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-menu a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: var(--primary-light);
+        }
+
+        .sidebar-menu .active {
+            background-color: var(--primary-dark);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .logout-button {
+            background-color: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 100%;
+            text-align: left;
+            padding: 12px 25px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Nouveau style pour le header bleu */
+        .welcome-header {
+            background-color: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .welcome-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .welcome-text h4 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .welcome-text p {
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+        }
+
+        .table th {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 51, 102, 0.05);
+        }
+
+        /* Badge Styles */
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background-color: var(--warning);
+            color: var(--gray-700);
+        }
+
+        .badge-docked {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .badge-departed {
+            background-color: var(--gray-600);
+            color: white;
+        }
+
+        .badge-cancelled {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        /* Nouveau style pour les boutons d'action */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+
+        .btn-view {
+            background-color: var(--secondary);
+        }
+
+        .btn-edit {
+            background-color: var(--warning);
+        }
+
+        .btn-delete {
+            background-color: var(--danger);
+        }
+
+        /* Search Form */
+        .search-form {
+            margin-bottom: 0;
+            min-width: 250px;
+            margin-left: auto;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -280px;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .welcome-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-form {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i> Menu
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="https://www.boursenews.ma/uploads/actualites/67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png" 
+                 alt="Logo Marsa Maroc">
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'chef_escale' %}" class="active">
+                <i class="fas fa-ship"></i> Navires
+            </a>
+            <a href="{% url 'ajout_navire' %}">
+                <i class="fas fa-plus-circle"></i> Ajouter un Navire
+            </a>
+            <a href="{% url 'ajout_absence' %}">
+                <i class="fas fa-user-clock"></i> Gérer les Absences
+            </a>
+            <a href="{% url 'engin_details_view' %}" class="btn btn-primary">
+                <i class="fas fa-truck-moving"></i> Voir les engins
+            </a>
+            <a href="{% url 'conducteurs' %}" class="btn btn-primary">
+                <i class="fas fa-truck-moving"></i> Conducteurs
+            </a>
+            
+            
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Nouveau header bleu avec logo -->
+        <div class="welcome-header">
+            <img src="https://www.boursenews.ma/uploads/actualites/67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png" 
+                 alt="Logo Marsa Maroc" class="welcome-logo">
+            <div class="welcome-text">
+                <h4>Bienvenue, {{ user.username }} !</h4>
+                <p>Vous êtes connecté en tant que Chef d'Escale.</p>
+            </div>
+            <form method="get" class="search-form d-flex">
+                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher..." 
+                       value="{{ request.GET.search }}">
+                <button type="submit" class="btn btn-light">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nom du Navire</th>
+                            <th>IMO</th>
+                            <th>Poste</th>
+                            <th>Opération</th>
+                            <th>Arrivée</th>
+                            <th>Départ</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for navire in navires %}
+                        <tr>
+                            <td>{{ navire.nom }}</td>
+                            <td>{{ navire.imo }}</td>
+                            <td>{{ navire.poste }}</td>
+                            <td>{{ navire.get_type_operation_display }}</td>
+                            <td>{{ navire.heure_arrivee|date:"d/m/Y H:i" }}</td>
+                            <td>{{ navire.heure_depart|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <span class="badge-status badge-{{ navire.statut }}">
+                                    {{ navire.get_statut_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn btn-view" title="Voir détails" onclick="window.location.href='{% url 'detail_navire' navire.id %}'">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn btn-edit" title="Modifier" onclick="window.location.href='{% url 'modifier_navire' navire.id %}'">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn btn-delete" title="Supprimer" onclick="confirmDelete('{% url 'supprimer_navire' navire.id %}')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">Aucun navire enregistré</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if navires.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if navires.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            &laquo; Premier
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ navires.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            Précédent
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in navires.paginator.page_range %}
+                        {% if navires.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > navires.number|add:'-3' and num < navires.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if navires.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ navires.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            Suivant
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ navires.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                            Dernier &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        // Gestion du menu mobile
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Fonction de confirmation de suppression
+        function confirmDelete(url) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce navire ? Cette action est irréversible.')) {
+                window.location.href = url;
+            }
+        }
+        
+        // Fermeture automatique des alertes après 5 secondes
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

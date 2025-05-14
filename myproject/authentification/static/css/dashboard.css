@@ -1,0 +1,208 @@
+/* Dashboard Styles */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.dashboard-card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#drivers-section {
+    grid-column: span 2;
+}
+
+.view-all {
+    color: var(--primary);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-bold);
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+
+/* Calendar */
+.calendar-container {
+    padding: 1rem;
+}
+
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#current-month {
+    font-weight: var(--font-weight-bold);
+}
+
+.calendar {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar th, .calendar td {
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid var(--gray-200);
+}
+
+.calendar th {
+    font-weight: var(--font-weight-bold);
+    background-color: var(--gray-100);
+}
+
+.calendar .today {
+    background-color: rgba(0, 51, 102, 0.1);
+    font-weight: var(--font-weight-bold);
+}
+
+.calendar .has-events {
+    position: relative;
+}
+
+.calendar .has-events::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--primary);
+}
+
+.calendar .other-month {
+    color: var(--gray-400);
+}
+
+/* Absence list */
+.absence-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.absence-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.absence-item:last-child {
+    border-bottom: none;
+}
+
+.absence-info {
+    flex: 1;
+}
+
+.absence-driver {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 0.25rem;
+}
+
+.absence-dates {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+/* Shifts summary */
+.shifts-summary {
+    padding: 1rem;
+}
+
+.shift-block {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.shift-block:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.shift-title {
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.shift-title .badge {
+    margin-left: 0.5rem;
+}
+
+.driver-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.driver-pill {
+    background-color: var(--gray-100);
+    border-radius: 50px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.driver-pill .equipment {
+    font-size: 0.75rem;
+    background-color: var(--gray-200);
+    border-radius: 50px;
+    padding: 0.125rem 0.5rem;
+    margin-left: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #drivers-section {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        width: 100%;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+    }
+}

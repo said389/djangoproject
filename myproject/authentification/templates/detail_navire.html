@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Détails du Navire</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Informations de base</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Nom:</strong> {{ navire.nom }}</li>
+                        <li class="list-group-item"><strong>IMO:</strong> {{ navire.imo }}</li>
+                        <li class="list-group-item"><strong>Poste:</strong> {{ navire.poste }}</li>
+                        <li class="list-group-item"><strong>Opération:</strong> {{ navire.get_type_operation_display }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4>Horaires</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Arrivée:</strong> {{ navire.heure_arrivee|date:"d/m/Y H:i" }}</li>
+                        <li class="list-group-item"><strong>Départ:</strong> {{ navire.heure_depart|date:"d/m/Y H:i" }}</li>
+                        <li class="list-group-item">
+                            <strong>Statut:</strong> 
+                            <span class="badge badge-{{ navire.statut }}">
+                                {{ navire.get_statut_display }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'chef_escale' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+            <a href="{% url 'modifier_navire' navire.id %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

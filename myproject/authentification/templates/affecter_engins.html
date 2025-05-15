@@ -1,59 +1,60 @@
-<!-- templates/affectation/affectation.html -->
-{% extends 'base.html' %}
+<h2>Affectation d'Engins</h2>
 
-{% block content %}
-<div class="container">
-    <h2>Affectation des engins pour {{ navire.nom }}</h2>
+<form method="get">
+  <label for="navire">Choisissez un navire :</label>
+  <select name="navire_id" id="navire" onchange="this.form.submit()">
+    <option value="">-- Sélectionner --</option>
+    {% for navire in navires %}
+      <option value="{{ navire.id }}" {% if navire.id|stringformat:"s" == selected_navire_id %}selected{% endif %}>
+        {{ navire.nom }} ({{ navire.type_marchandise }})
+      </option>
+    {% endfor %}
+  </select>
+</form>
+
+{% if marchandise %}
+  <h3>Marchandise du navire : {{ marchandise }}</h3>
+  <h4>Engins disponibles :</h4>
+  <ul>
+    {% for engin in engins %}
+      <li>{{ engin.matricule }} - {{ engin.marque }} {{ engin.modele }} ({{ engin.type_engin }})</li>
+    {% empty %}
+      <li>Aucun engin disponible pour cette marchandise.</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label for="nombre_engins">Nombre d'engins à affecter :</label>
+    <input type="number" name="nombre_engins" id="nombre_engins" min="1" required>
+
+    <input type="hidden" name="navire_id" value="{{ selected_navire_id }}">
     
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Informations du navire</h5>
-            <p><strong>Type marchandise:</strong> {{ type_marchandise.libelle }}</p>
-            <p><strong>Poste:</strong> {{ navire.get_poste_display }}</p>
-        </div>
-    </div>
+    <button type="submit">Affecter automatiquement</button>
+</form>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Engins disponibles</h5>
-                </div>
-                <div class="card-body">
-                    {% if engins_disponibles %}
-                        <form method="post" action="{% url 'valider_affectation' navire.id %}">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="nombre_engins" class="form-label">
-                                    Nombre d'engins à affecter (max {{ engins_disponibles.count() }})
-                                </label>
-                                <input type="number" class="form-control" id="nombre_engins" 
-                                       name="nombre_engins" min="1" max="{{ engins_disponibles.count() }}" required>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                Valider l'affectation
-                            </button>
-                        </form>
-                        
-                        <div class="mt-3">
-                            <h6>Liste des engins compatibles:</h6>
-                            <ul class="list-group">
-                                {% for engin in engins_disponibles %}
-                                <li class="list-group-item">
-                                    {{ engin.matricule }} - {{ engin.type_engin }}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            Aucun engin disponible pour ce type de marchandise
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
+{% if chauffeurs %}
+  <h4>Chauffeurs disponibles :</h4>
+  <ul>
+    {% for chauffeur in chauffeurs %}
+      <li>{{ chauffeur.firstname }} {{ chauffeur.lastname }} - {{ chauffeur.matricule }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
+
+<button onclick="location.href='{% url 'chef_escale' %}'" class="btn btn-primary">
+    Retour à l'accueil
+</button>

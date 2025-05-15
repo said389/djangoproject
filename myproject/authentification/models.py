@@ -100,31 +100,7 @@ class Navire(models.Model):
             Q(heure_depart__gt=heure_arrivee)
         ).exists()
         
-        
         return not conflits
-    
-    
-    def get_engins_compatibles(self):
-        """Retourne les engins pouvant traiter le type de marchandise du navire"""
-        return Engin.objects.filter(
-            enginmarchandise__type_marchandise__code=self.type_marchandise,
-            statut='disponible'
-        ).distinct()
-    
-    def affecter_engins(self, nombre_engins=None):
-        """Affecte automatiquement des engins compatibles"""
-        engins_compatibles = self.get_engins_compatibles()
-        
-        if nombre_engins:
-            engins_compatibles = engins_compatibles[:nombre_engins]
-        
-        for engin in engins_compatibles:
-            AffectationEngin.objects.create(
-                navire=self,
-                engin=engin
-            )
-        
-        return engins_compatibles.count()
     
 date_modification = models.DateTimeField(auto_now=True, null=True) 
 
@@ -215,8 +191,6 @@ class TypeMarchandise(models.Model):
     libelle = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    
-
     def __str__(self):
         return self.libelle
     
@@ -225,41 +199,22 @@ class TypeMarchandise(models.Model):
 
 class EnginMarchandise(models.Model):
     engin = models.ForeignKey(Engin, on_delete=models.CASCADE)
-    type_marchandise = models.ForeignKey(TypeMarchandise, on_delete=models.CASCADE)
-    date_ajout = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ('engin', 'type_marchandise')
-        verbose_name = "Liaison Engin-Marchandise"
-        verbose_name_plural = "Liaisons Engin-Marchandise"
-    
+    marchandise_type = models.CharField(max_length=20, choices=Navire.TYPE_MARCHANDISE)
+
     def __str__(self):
-        return f"{self.engin} peut traiter {self.type_marchandise}"
+        return f"{self.engin.nom} - {self.marchandise_type}"
+
+
+class FeuilleService(models.Model):
+    navire = models.ForeignKey(Navire, on_delete=models.CASCADE)
+    engins = models.ManyToManyField(Engin)
+    drivers = models.ManyToManyField(Driver)
+    date = models.DateField(auto_now_add=True)
+
+
     
 
 
-class AffectationEngin(models.Model):
-    navire = models.ForeignKey(Navire, on_delete=models.CASCADE, related_name='affectations_engins')
-    engin = models.ForeignKey(Engin, on_delete=models.CASCADE)
-    date_debut = models.DateTimeField(auto_now_add=True)
-    date_fin = models.DateTimeField(null=True, blank=True)
-    chauffeur = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-date_debut']
-    
-    def save(self, *args, **kwargs):
-        # Mettre à jour le statut de l'engin
-        if not self.pk:  # Nouvelle affectation
-            self.engin.statut = 'occupe'
-            self.engin.save()
-        super().save(*args, **kwargs)
-    
-    def delete(self, *args, **kwargs):
-        # Libérer l'engin lors de la suppression
-        self.engin.statut = 'disponible'
-        self.engin.save()
-        super().delete(*args, **kwargs)
-    
-    def __str__(self):
-        return f"{self.engin} affecté à {self.navire}"
+
+
+

@@ -97,13 +97,13 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-
 @login_required
 def ajout_navire(request):
     types_marchandises = TypeMarchandise.objects.all().order_by('libelle')
     
     if request.method == 'POST':
         try:
+            # Validation des champs (votre code existant)
             required_fields = [
                 'nom_navire', 'imo_number', 'operation-type',
                 'origin-port', 'berth', 'arrival-time',
@@ -114,18 +114,22 @@ def ajout_navire(request):
                 if not request.POST.get(field):
                     raise ValueError(f"Le champ {field} est obligatoire")
             
+            # Conversion des dates/heures
             heure_arrivee = timezone.make_aware(
                 timezone.datetime.strptime(
-                    request.POST.get('arrival-time'), '%Y-%m-%dT%H:%M'
+                    request.POST.get('arrival-time'), 
+                    '%Y-%m-%dT%H:%M'
                 )
             )
             
             heure_depart = timezone.make_aware(
                 timezone.datetime.strptime(
-                    request.POST.get('departure-time'), '%Y-%m-%dT%H:%M'
+                    request.POST.get('departure-time'), 
+                    '%Y-%m-%dT%H:%M'
                 )
             )
             
+            # Vérifications (votre code existant)
             if heure_arrivee >= heure_depart:
                 raise ValueError("La date d'arrivée doit être avant la date de départ")
             
@@ -145,7 +149,7 @@ def ajout_navire(request):
             ).exists():
                 raise ValueError(f"Le poste {poste} est déjà occupé pendant cette période")
             
-            # Création du navire
+            # Création du navire (sans sauvegarde immédiate)
             navire = Navire(
                 nom=request.POST.get('nom_navire'),
                 imo=imo_number,
@@ -155,45 +159,17 @@ def ajout_navire(request):
                 heure_arrivee=heure_arrivee,
                 duree_sejour=request.POST.get('stay-duration'),
                 heure_depart=heure_depart,
-                type_marchandise=type_marchandise.code,
+                type_marchandise=type_marchandise.code,  # Utilisez code au lieu de l'objet
                 chef_escale=request.user,
                 statut='En attente'
             )
             
+            # Sauvegarde temporaire pour obtenir un ID
             navire.save()
             
-            # Affection automatique des engins
-            try:
-                # Récupérer les engins compatibles avec le type de marchandise
-                engins_compatibles = Engin.objects.filter(
-                    enginmarchandise__type_marchandise=type_marchandise,
-                    statut='disponible'
-                ).distinct()
-                
-                # Affecter tous les engins disponibles (ou adapter selon vos besoins)
-                for engin in engins_compatibles:
-                    AffectationEngin.objects.create(
-                        navire=navire,
-                        engin=engin,
-                        date_debut=timezone.now()
-                    )
-                    engin.statut = 'occupe'
-                    engin.save()
-                
-                messages.success(
-                    request, 
-                    f"Navire ajouté avec succès. {engins_compatibles.count()} engins affectés automatiquement."
-                )
-                
-            except Exception as e:
-                messages.warning(
-                    request, 
-                    f"Navire ajouté mais erreur lors de l'affectation des engins: {str(e)}"
-                )
-                logger.error(f"Erreur affectation engins: {str(e)}", exc_info=True)
-            
-            # Redirection vers la page de détail du navire ou liste des navires
-                return redirect('affecter_engins', navire_id=navire.id)
+            # Optionnel: Redirection vers une autre page ou afficher un message de confirmation
+            messages.success(request, "Le navire a été ajouté avec succès!")
+            redirect('dashboard')  
             
         except TypeMarchandise.DoesNotExist:
             messages.error(request, "Type de marchandise invalide")
@@ -208,55 +184,7 @@ def ajout_navire(request):
     }
     return render(request, 'ajout_navire.html', context)
 
-def page_affectation(request, navire_id):
-    navire = get_object_or_404(Navire, pk=navire_id)
-    form = AffectationForm()
-    
-    # Pré-calcul des engins disponibles
-    type_marchandise = TypeMarchandise.objects.get(code=navire.type_marchandise)
-    engins_disponibles = Engin.objects.filter(
-        enginmarchandise__type_marchandise=type_marchandise,
-        statut='disponible'
-    ).count()
-    
-    context = {
-        'navire': navire,
-        'form': form,
-        'engins_disponibles': engins_disponibles,
-    }
-    return render(request, 'page_affectation.html', context)
 
-def affecter_engins(request, navire_id):
-    navire = get_object_or_404(Navire, pk=navire_id)
-    
-    if request.method == 'POST':
-        form = AffectationForm(request.POST)
-        if form.is_valid():
-            nombre_engins = form.cleaned_data['nombre_engins']
-            
-            # Récupération des engins compatibles
-            type_marchandise = TypeMarchandise.objects.get(code=navire.type_marchandise)
-            engins = Engin.objects.filter(
-                enginmarchandise__type_marchandise=type_marchandise,
-                statut='disponible'
-            )[:nombre_engins]
-            
-            # Affectation des engins
-            for engin in engins:
-                AffectationEngin.objects.create(
-                    navire=navire,
-                    engin=engin
-                )
-                engin.statut = 'occupe'
-                engin.save()
-            
-            messages.success(
-                request, 
-                f"Navire ajouté avec succès. {engins.count()} engins affectés automatiquement."
-            )
-            return redirect('detail_navire', navire_id=navire.id)
-    
-    return redirect('page_affectation', navire_id=navire.id)
 
 
 def navires_actifs(request):
@@ -536,107 +464,72 @@ def conducteurs_par_chef(request):
     })
 
 
-
-
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from .models import Navire, Engin, AffectationEngin, TypeMarchandise
+from .models import Navire, Engin, EnginMarchandise, Driver
+import json
 
-def affecter_engins(request, navire_id):
-    # Récupérer le navire
-    navire = get_object_or_404(Navire, pk=navire_id)
-    
-    # Récupérer le type de marchandise du navire
-    try:
-        type_marchandise = TypeMarchandise.objects.get(code=navire.type_marchandise)
-    except TypeMarchandise.DoesNotExist:
-        messages.error(request, "Type de marchandise non trouvé")
-        return redirect('detail_navire', navire_id=navire.id)
-    
-    # Récupérer les engins compatibles et disponibles
-    engins_compatibles = Engin.objects.filter(
-        enginmarchandise__type_marchandise=type_marchandise,
-        statut='disponible'
-    ).distinct()
-    
-    # Récupérer les affectations existantes
-    affectations = AffectationEngin.objects.filter(navire=navire)
-    
+def affecter_engins(request):
+    navires = Navire.objects.filter(chef_escale=request.user)
+    selected_navire_id = request.GET.get('navire_id') or request.POST.get('navire_id')
+    engins = []
+    marchandise = None
+    chauffeurs = []
+
+    if selected_navire_id:
+        navire = get_object_or_404(Navire, id=selected_navire_id)
+        marchandise = navire.type_marchandise
+
+        engins_ids = EnginMarchandise.objects.filter(
+            marchandise_type=marchandise
+        ).values_list('engin_id', flat=True)
+
+        engins = Engin.objects.filter(
+            id__in=engins_ids,
+            statut='disponible'
+        )
+
     if request.method == 'POST':
-        # Gérer l'affectation manuelle
-        if 'engin_id' in request.POST:
-            engin_id = request.POST.get('engin_id')
-            try:
-                engin = Engin.objects.get(pk=engin_id, statut='disponible')
-                
-                # Créer l'affectation
-                AffectationEngin.objects.create(
-                    navire=navire,
-                    engin=engin,
-                    date_debut=timezone.now()
+        nombre_engins = int(request.POST.get('nombre_engins', 0))
+        if nombre_engins <= 0:
+            messages.error(request, "Veuillez saisir un nombre valide d'engins.")
+        else:
+            engins_disponibles = engins[:nombre_engins]
+            if engins_disponibles.count() < nombre_engins:
+                messages.error(request, f"Seulement {engins_disponibles.count()} engin(s) disponible(s). Impossible d'en affecter {nombre_engins}.")
+            else:
+                # Affecter les engins (changer le statut)
+                for engin in engins_disponibles:
+                    engin.statut = 'occupé'
+                    engin.save()
+                messages.success(request, f"{nombre_engins} engin(s) affecté(s) avec succès.")
+
+                # Récupérer les types des engins affectés
+                types_engins_affectes = [engin.type_engin for engin in engins_disponibles]
+
+                # Trouver les chauffeurs qui savent les conduire
+                for driver in Driver.objects.all():
+                    try:
+                        if isinstance(driver.equipment, str):
+                            equip_list = json.loads(driver.equipment)
+                        else:
+                            equip_list = driver.equipment  # déjà une liste dans certains cas
+
+                        if any(e in equip_list for e in types_engins_affectes):
+                            chauffeurs.append(driver)
+                    except json.JSONDecodeError:
+                        continue
+
+                # Recharger les engins disponibles après affectation
+                engins = Engin.objects.filter(
+                    id__in=engins_ids,
+                    statut='disponible'
                 )
-                
-                # Mettre à jour le statut de l'engin
-                engin.statut = 'occupe'
-                engin.save()
-                
-                messages.success(request, f"Engin {engin.matricule} affecté avec succès")
-            except Engin.DoesNotExist:
-                messages.error(request, "Engin non disponible")
-        
-        # Gérer la libération d'engin
-        elif 'liberer_id' in request.POST:
-            affectation_id = request.POST.get('liberer_id')
-            try:
-                affectation = AffectationEngin.objects.get(pk=affectation_id)
-                engin = affectation.engin
-                
-                # Libérer l'engin
-                engin.statut = 'disponible'
-                engin.save()
-                affectation.delete()
-                
-                messages.success(request, f"Engin {engin.matricule} libéré avec succès")
-            except AffectationEngin.DoesNotExist:
-                messages.error(request, "Affectation non trouvée")
-        
-        return redirect('affecter_engins', navire_id=navire.id)
-    
-    context = {
-        'navire': navire,
-        'engins_compatibles': engins_compatibles,
-        'affectations': affectations,
-        'type_marchandise': type_marchandise,
-    }
-    
-    return render(request, 'affecter_engins.html', context)
 
-
-
-
-
-
-    # views.py
-def page_affectation(request, navire_id):
-    navire = get_object_or_404(Navire, pk=navire_id)
-    
-    # Récupérer le type de marchandise
-    try:
-        type_marchandise = TypeMarchandise.objects.get(code=navire.type_marchandise)
-    except TypeMarchandise.DoesNotExist:
-        messages.error(request, "Type de marchandise non configuré")
-        return redirect('detail_navire', navire_id=navire.id)
-    
-    # Engins disponibles
-    engins_disponibles = Engin.objects.filter(
-        enginmarchandise__type_marchandise=type_marchandise,
-        statut='disponible'
-    )
-    
-    context = {
-        'navire': navire,
-        'engins_disponibles': engins_disponibles,
-        'type_marchandise': type_marchandise,
-    }
-    
-    return render(request, 'affecter_engins.html', context)
+    return render(request, 'affecter_engins.html', {
+        'navires': navires,
+        'selected_navire_id': selected_navire_id,
+        'marchandise': marchandise,
+        'engins': engins,
+        'chauffeurs': chauffeurs,
+    })

@@ -41,10 +41,11 @@ urlpatterns = [
      path('conducteurs/', views.conducteurs_par_chef, name='conducteurs'),
 
 
-    path('navire/<int:navire_id>/affectation/', views.page_affectation, name='page_affectation'),
-    path('navire/<int:navire_id>/affecter-engins/', views.affecter_engins, name='affecter_engins'), 
+    path('affecter-engins/', views.affecter_engins, name='affecter_engins'),
+
+
+
     
          
      path('dashboard/', views.dashboard, name='dashboard'),  # Ajoutez cette ligne
 ]
-

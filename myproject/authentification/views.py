@@ -464,10 +464,10 @@ def conducteurs_par_chef(request):
     })
 
 
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from .models import Navire, Engin, EnginMarchandise, Driver
-import json
+from .models import Navire, Engin, EnginMarchandise, Driver, AffectationDriver
 
 def affecter_engins(request):
     navires = Navire.objects.filter(chef_escale=request.user)
@@ -475,20 +475,20 @@ def affecter_engins(request):
     engins = []
     marchandise = None
     chauffeurs = []
-
+    
     if selected_navire_id:
         navire = get_object_or_404(Navire, id=selected_navire_id)
         marchandise = navire.type_marchandise
-
+        
         engins_ids = EnginMarchandise.objects.filter(
             marchandise_type=marchandise
         ).values_list('engin_id', flat=True)
-
+        
         engins = Engin.objects.filter(
             id__in=engins_ids,
             statut='disponible'
         )
-
+        
     if request.method == 'POST':
         nombre_engins = int(request.POST.get('nombre_engins', 0))
         if nombre_engins <= 0:
@@ -496,35 +496,32 @@ def affecter_engins(request):
         else:
             engins_disponibles = engins[:nombre_engins]
             if engins_disponibles.count() < nombre_engins:
-                messages.error(request, f"Seulement {engins_disponibles.count()} engin(s) disponible(s). Impossible d'en affecter {nombre_engins}.")
+                messages.error(request, f"Seulement {engins_disponibles.count()} engin(s) disponible(s).")
             else:
-                # Affecter les engins (changer le statut)
+                # Affecter les engins
                 for engin in engins_disponibles:
                     engin.statut = 'occupé'
                     engin.save()
-                messages.success(request, f"{nombre_engins} engin(s) affecté(s) avec succès.")
+                messages.success(request, f"{nombre_engins} engin(s) affecté(s).")
+                
+                # Récupérer les types des engins affectés (en minuscule)
+                types_engins_affectes = [engin.type_engin.lower() for engin in engins_disponibles]
 
-                # Récupérer les types des engins affectés
-                types_engins_affectes = [engin.type_engin for engin in engins_disponibles]
-
-                # Trouver les chauffeurs qui savent les conduire
+                # Trouver chauffeurs compatibles
                 for driver in Driver.objects.all():
-                    try:
-                        if isinstance(driver.equipment, str):
-                            equip_list = json.loads(driver.equipment)
-                        else:
-                            equip_list = driver.equipment  # déjà une liste dans certains cas
-
-                        if any(e in equip_list for e in types_engins_affectes):
-                            chauffeurs.append(driver)
-                    except json.JSONDecodeError:
-                        continue
-
-                # Recharger les engins disponibles après affectation
-                engins = Engin.objects.filter(
-                    id__in=engins_ids,
-                    statut='disponible'
-                )
+                    equip_list_lower = [e.lower() for e in driver.equipment]
+                    if any(t in equip_list_lower for t in types_engins_affectes):
+                        chauffeurs.append(driver)
+                
+                if chauffeurs:
+                    chauffeur_affecte = chauffeurs[0]
+                    AffectationDriver.objects.create(
+                        chauffeur=chauffeur_affecte,
+                        navire=navire
+                    )
+                    messages.success(request, f"Chauffeur {chauffeur_affecte.firstname} affecté au navire.")
+                else:
+                    messages.warning(request, "Aucun chauffeur compatible trouvé.")
 
     return render(request, 'affecter_engins.html', {
         'navires': navires,

@@ -213,8 +213,13 @@ class FeuilleService(models.Model):
 
 
     
+from django.db import models
+from .models import Driver, Navire
 
+class AffectationDriver(models.Model):
+    chauffeur = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    navire = models.ForeignKey(Navire, on_delete=models.CASCADE)
+    date_affectation = models.DateTimeField(auto_now_add=True)
 
-
-
-
+    def __str__(self):
+        return f"{self.chauffeur.firstname} {self.chauffeur.lastname} => {self.navire.nom}"

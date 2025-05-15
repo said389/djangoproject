@@ -1,60 +1,74 @@
-<h2>Affectation d'Engins</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Affectation d'Engins</title>
+</head>
+<body>
+    <h1>Affectation d'Engins</h1>
 
-<form method="get">
-  <label for="navire">Choisissez un navire :</label>
-  <select name="navire_id" id="navire" onchange="this.form.submit()">
-    <option value="">-- Sélectionner --</option>
-    {% for navire in navires %}
-      <option value="{{ navire.id }}" {% if navire.id|stringformat:"s" == selected_navire_id %}selected{% endif %}>
-        {{ navire.nom }} ({{ navire.type_marchandise }})
-      </option>
-    {% endfor %}
-  </select>
-</form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li 
+                  {% if message.tags %} class="{{ message.tags }}" {% endif %}
+                >
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-{% if marchandise %}
-  <h3>Marchandise du navire : {{ marchandise }}</h3>
-  <h4>Engins disponibles :</h4>
-  <ul>
-    {% for engin in engins %}
-      <li>{{ engin.matricule }} - {{ engin.marque }} {{ engin.modele }} ({{ engin.type_engin }})</li>
-    {% empty %}
-      <li>Aucun engin disponible pour cette marchandise.</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+    <form method="get" action="">
+        <label for="navire">Choisissez un navire :</label>
+        <select name="navire_id" id="navire" onchange="this.form.submit()">
+            <option value="">-- Sélectionnez --</option>
+            {% for navire in navires %}
+                <option value="{{ navire.id }}" {% if navire.id|stringformat:"s" == selected_navire_id %}selected{% endif %}>
+                    {{ navire.nom }} ({{ navire.type_marchandise }})
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 
-<form method="post">
-    {% csrf_token %}
-    <label for="nombre_engins">Nombre d'engins à affecter :</label>
-    <input type="number" name="nombre_engins" id="nombre_engins" min="1" required>
+    {% if selected_navire_id %}
+        <p><strong>Marchandise :</strong> {{ marchandise }}</p>
 
-    <input type="hidden" name="navire_id" value="{{ selected_navire_id }}">
-    
-    <button type="submit">Affecter automatiquement</button>
-</form>
+        <h3>Engins disponibles :</h3>
+        {% if engins %}
+            <ul>
+                {% for engin in engins %}
+                    <li>{{ engin.id }} - {{ engin.type_engin }} ({{ engin.nom }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun engin disponible.</p>
+        {% endif %}
+
+        <form method="post" action="">
+            {% csrf_token %}
+            <input type="hidden" name="navire_id" value="{{ selected_navire_id }}">
+            <label for="nombre_engins">Nombre d'engins à affecter :</label>
+            <input type="number" name="nombre_engins" id="nombre_engins" min="1" max="{{ engins|length }}" required>
+
+            <button type="submit">Affecter automatiquement</button>
+        </form>
+
+        {% if chauffeurs %}
+            <h3>Chauffeurs compatibles :</h3>
+            <ul>
+                {% for chauffeur in chauffeurs %}
+                    <li>{{ chauffeur.firstname }} {{ chauffeur.lastname }} - Equipement: {{ chauffeur.equipment }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
 
 
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
 
 
-{% if chauffeurs %}
-  <h4>Chauffeurs disponibles :</h4>
-  <ul>
-    {% for chauffeur in chauffeurs %}
-      <li>{{ chauffeur.firstname }} {{ chauffeur.lastname }} - {{ chauffeur.matricule }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-
-
-<button onclick="location.href='{% url 'chef_escale' %}'" class="btn btn-primary">
+<button onclick="location.href='{% url 'chef_escale' %}'" class="btn btn-primary add-vessel-btn">
     Retour à l'accueil
 </button>

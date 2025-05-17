@@ -210,6 +210,9 @@ class FeuilleService(models.Model):
     engins = models.ManyToManyField(Engin)
     drivers = models.ManyToManyField(Driver)
     date = models.DateField(auto_now_add=True)
+    published = models.BooleanField(default=False)
+
+
 
 
     

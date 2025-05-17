@@ -38,7 +38,7 @@
         {% if engins %}
             <ul>
                 {% for engin in engins %}
-                    <li>{{ engin.id }} - {{ engin.type_engin }} ({{ engin.nom }})</li>
+                    <li>{{ engin.type_engin }} </li>
                 {% endfor %}
             </ul>
         {% else %}
@@ -66,6 +66,13 @@
 </body>
 </html>
 
+
+{% if chauffeurs %}
+    <form method="get" action="{% url 'feuille_service' %}">
+        <input type="hidden" name="navire_id" value="{{ selected_navire_id }}">
+        <button type="submit">Créer la Feuille de Service</button>
+    </form>
+{% endif %}
 
 
 

@@ -530,3 +530,83 @@ def affecter_engins(request):
         'engins': engins,
         'chauffeurs': chauffeurs,
     })
+
+
+
+
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template.loader import get_template
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from .models import Navire, AffectationDriver, Engin, FeuilleService
+from xhtml2pdf import pisa
+import io
+
+def render_to_pdf(template_src, context_dict={}):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = io.BytesIO()
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return HttpResponse("Erreur lors de la génération du PDF")
+
+
+def feuille_service(request):
+    navire_id = request.GET.get('navire_id')
+    navire = get_object_or_404(Navire, id=navire_id)
+
+    engins = Engin.objects.filter(statut='occupé')
+    affectation = AffectationDriver.objects.filter(navire=navire).first()
+    chauffeur = affectation.chauffeur if affectation else None
+
+    publication_succes = False
+
+    if request.method == 'POST' and request.POST.get('publish'):
+        feuille = FeuilleService.objects.create(navire=navire)
+        feuille.engins.set(engins)
+        if chauffeur:
+            feuille.drivers.set([chauffeur])
+        feuille.save()
+        publication_succes = True
+
+    context = {
+        'navire': navire,
+        'engins': engins,
+        'chauffeur': chauffeur,
+        'user': request.user,
+        'publication_succes': publication_succes,
+    }
+
+    # Si "pdf" est demandé via GET
+    if request.GET.get('pdf'):
+        return render_to_pdf('feuille_service.html', context)
+
+    return render(request, 'feuille_service.html', context)
+
+
+
+
+def daily_shifts(request):
+    # On affiche seulement les feuilles publiées (FeuilleService)
+    feuilles = FeuilleService.objects.all().order_by('-date')
+
+    context = {
+        'feuilles': feuilles,
+        'user': request.user,
+    }
+
+    return render(request, 'daily-shifts.html', context)
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+@require_POST
+def supprimer_feuille(request, feuille_id):
+    try:
+        feuille = FeuilleService.objects.get(id=feuille_id)
+        feuille.delete()
+        return JsonResponse({'success': True})
+    except FeuilleService.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Feuille non trouvée'}, status=404)

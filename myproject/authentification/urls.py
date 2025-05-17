@@ -43,9 +43,12 @@ urlpatterns = [
 
     path('affecter-engins/', views.affecter_engins, name='affecter_engins'),
 
+    path('feuille_service/', views.feuille_service, name='feuille_service'),
 
 
-    
+
+
+    path('supprimer-feuille/<int:feuille_id>/', views.supprimer_feuille, name='supprimer_feuille'),
          
      path('dashboard/', views.dashboard, name='dashboard'),  # Ajoutez cette ligne
 ]

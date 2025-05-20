@@ -46,9 +46,16 @@ urlpatterns = [
     path('feuille_service/', views.feuille_service, name='feuille_service'),
 
 
+  
 
 
     path('supprimer-feuille/<int:feuille_id>/', views.supprimer_feuille, name='supprimer_feuille'),
+
+
+
+    path('conducteur/', views.conducteur_home, name='conducteur_home'),
          
      path('dashboard/', views.dashboard, name='dashboard'),  # Ajoutez cette ligne
+
 ]
+ 

@@ -7,26 +7,52 @@ from .models import Driver, Navire  # Ajoutez Navire
 from django.http import JsonResponse
 import json
 from django.utils import timezone
+from django.db import connection
 
-# Fonction de connexion (inchangée)
+
 def connexion(request):
     if request.method == "POST":
-        email = request.POST.get('email')
-        mot_de_passe = request.POST.get('mot_de_passe')
+        role = request.POST.get('role')
 
-        try:
-            user = User.objects.get(email=email)
-            user = authenticate(request, username=user.username, password=mot_de_passe)
+        if role == 'chef':
+            email = request.POST.get('email')
+            mot_de_passe = request.POST.get('mot_de_passe')
 
-            if user is not None:
-                login(request, user)
-                return redirect('chef_escale')
+            try:
+                user = User.objects.get(email=email)
+                user = authenticate(request, username=user.username, password=mot_de_passe)
+
+                if user is not None:
+                    login(request, user)
+                    request.session['role'] = 'chef'
+                    return redirect('chef_escale')  # صفحة رئيسية للchef
+                else:
+                    messages.error(request, "Mot de passe incorrect.")
+            except User.DoesNotExist:
+                messages.error(request, "L'adresse email n'existe pas.")
+
+        elif role == 'conducteur':
+            matricule = request.POST.get('matricule')
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT firstname, lastname FROM authentification_driver WHERE matricule = %s",
+                    [matricule]
+                )
+                row = cursor.fetchone()
+
+            if row:
+                full_name = f"{row[0]} {row[1]}"
+                request.session['utilisateur'] = full_name
+                request.session['role'] = 'conducteur'
+                return redirect('conducteur_home')  # صفحة خاصة بالسائق
             else:
-                messages.error(request, "Mot de passe incorrect.")
-        except User.DoesNotExist:
-            messages.error(request, "L'adresse email n'existe pas.")
+                messages.error(request, "Matricule incorrect.")
+
+        else:
+            messages.error(request, "Veuillez choisir un rôle.")
 
     return render(request, 'connexion.html', {'message': messages.get_messages(request)})
+
 
 # Vue chef_escale modifiée pour inclure les navires
 @login_required
@@ -199,13 +225,48 @@ def check_poste_disponible(request):
     disponible = Navire.check_poste_disponible(poste, heure_arrivee, heure_depart)
     return JsonResponse({'disponible': disponible})
 
-# Les autres vues restent inchangées
+from .models import AbsenceRequest
+from django.core.files.storage import FileSystemStorage
+
 def gestion_absences(request):
     drivers = Driver.objects.all()
+
+    if request.method == 'POST':
+        matricule = request.POST.get('conducteur_matricule')
+        date_debut = request.POST.get('date_debut')
+        date_fin = request.POST.get('date_fin')
+        motif = request.POST.get('motif')
+        commentaires = request.POST.get('commentaires')
+        justificatif = request.FILES.get('justificatif')
+
+        AbsenceRequest.objects.create(
+            conducteur_matricule=matricule,
+            date_debut=date_debut,
+            date_fin=date_fin,
+            motif=motif,
+            commentaires=commentaires,
+            justificatif=justificatif
+        )
+
+        message = "Demande envoyée avec succès."
+        return render(request, 'gestion_absences.html', {'drivers': drivers, 'message': message})
+
     return render(request, 'gestion_absences.html', {'drivers': drivers})
 
+
 def absence_management(request):
-    return render(request, 'absence-management.html')
+    if request.method == 'POST' and 'action' in request.POST:
+        try:
+            absence = AbsenceRequest.objects.get(id=request.POST['id'])
+            absence.statut = request.POST['action']
+            absence.save()
+            messages.success(request, f"Demande {absence.get_statut_display()}")
+        except AbsenceRequest.DoesNotExist:
+            messages.error(request, "Demande introuvable")
+    
+    absences = AbsenceRequest.objects.all().order_by('-date_debut')
+    return render(request, 'absence-management.html', {'absences': absences})
+
 
 def index(request):
     return render(request, 'index.html')
@@ -610,3 +671,13 @@ def supprimer_feuille(request, feuille_id):
         return JsonResponse({'success': True})
     except FeuilleService.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Feuille non trouvée'}, status=404)
+    
+
+
+
+def conducteur_home(request):
+    nom = request.session.get('utilisateur', 'Conducteur')
+
+    absences = AbsenceRequest.objects.filter(conducteur_matricule=nom)
+    return render(request, 'conducteur_home.html', {'nom': nom, 'absences': absences})
+

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil Conducteur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .logout {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue, {{ nom }} 👋</h1>
+        <p>Vous êtes connecté en tant que conducteur.</p>
+
+        <ul class="feuille-list" id="feuille-container">
+            {% for feuille in feuilles %}
+                <li class="feuille-item" id="feuille-{{ feuille.id }}">
+                    <div class="feuille-info">
+                        <a >
+                            Feuille du navire {{ feuille.navire.nom }} - Date: {{ feuille.date }}
+                        </a>
+                    </div>
+                    <div class="feuille-actions">
+                        <a href="{% url 'feuille_service' %}?navire_id={{ feuille.navire.id }}&pdf=1" target="_blank" class="btn small">
+                            Télécharger PDF
+                        </a>
+                        <button class="btn small danger delete-btn" data-id="{{ feuille.id }}">
+                            Supprimer
+                        </button>
+                    </div>
+                </li>
+            {% empty %}
+                <li class="empty-message">Aucune feuille publiée.</li>
+            {% endfor %}
+        </ul>
+
+
+        <h3>Mes demandes d'absence :</h3>
+<ul>
+  {% for abs in absences %}
+    <li>Du {{ abs.date_debut }} au {{ abs.date_fin }} — {{ abs.motif }} — <strong>{{ abs.statut }}</strong></li>
+  {% empty %}
+    <li>Aucune demande trouvée</li>
+  {% endfor %}
+</ul>
+
+       
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </form>
+    </div>
+    </div>
+</body>
+</html>

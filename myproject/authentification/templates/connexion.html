@@ -173,6 +173,27 @@
                 padding: 1.5rem;
             }
         }
+
+
+        select.input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    color: #333;
+    font-size: 16px;
+    appearance: none; /* enlève le style natif */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+select.input option {
+    background-color: white;
+    color: #333;
+    font-size: 16px;
+}
+
     </style>
 </head>
 <body>
@@ -196,19 +217,33 @@
                 {% csrf_token %}
                 
                 <div class="form-group">
+                    <label for="role">Je suis :</label>
+                    <select name="role" id="role" class="input" required>
+                        <option value="">-- Choisir un rôle --</option>
+                        <option value="chef">Chef d’escale</option>
+                        <option value="conducteur">Conducteur</option>
+                    </select>
+                </div>
+            
+                <div id="emailField" class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" name="email" id="email" class="input" placeholder="votre@email.com" required>
+                    <input type="email" name="email" id="email" class="input" placeholder="votre@email.com">
                 </div>
                 
-                <div class="form-group password-container">
+                <div id="passwordField" class="form-group password-container">
                     <label for="mot_de_passe">Mot de passe</label>
-                    <input type="password" name="mot_de_passe" id="mot_de_passe" class="input" placeholder="••••••••" required>
-                    <button type="button" class="toggle-password" id="togglePassword"><👁️/button>
+                    <input type="password" name="mot_de_passe" id="mot_de_passe" class="input" placeholder="••••••••">
+                    <button type="button" class="toggle-password" id="togglePassword">👁️</button>
                 </div>
-                
+            
+                <div id="matriculeField" class="form-group" style="display:none;">
+                    <label for="matricule">Matricule</label>
+                    <input type="text" name="matricule" id="matricule" class="input" placeholder="Saisir votre matricule">
+                </div>
+            
                 <button type="submit" class="submit-button">Se connecter</button>
             </form>
-
+            
             
         
 
@@ -229,34 +264,47 @@
 
     
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.getElementById('togglePassword');
-            const password = document.getElementById('mot_de_passe');
-            const loginForm = document.getElementById('loginForm');
+   
+       <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const emailField = document.getElementById('emailField');
+    const passwordField = document.getElementById('passwordField');
+    const matriculeField = document.getElementById('matriculeField');
 
-            if (togglePassword && password) {
-                togglePassword.addEventListener('click', function() {
-                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                    password.setAttribute('type', type);
-                    togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-                });
-            }
+    // 👁️ Toggle mot de passe
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('mot_de_passe');
 
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    // Validation supplémentaire peut être ajoutée ici
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('mot_de_passe').value;
-                    
-                    if (!email || !password) {
-                        e.preventDefault();
-                        alert('Veuillez remplir tous les champs');
-                    }
-                });
-            }
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
         });
-    </script>
+    }
+
+    // 🎭 Affichage champs selon rôle
+    roleSelect.addEventListener('change', () => {
+        const role = roleSelect.value;
+        if (role === "chef") {
+            emailField.style.display = 'block';
+            passwordField.style.display = 'block';
+            matriculeField.style.display = 'none';
+        } else if (role === "conducteur") {
+            emailField.style.display = 'none';
+            passwordField.style.display = 'none';
+            matriculeField.style.display = 'block';
+        } else {
+            emailField.style.display = 'none';
+            passwordField.style.display = 'none';
+            matriculeField.style.display = 'none';
+        }
+    });
+});
+</script>
+
+        
     
 </body>
 </html>

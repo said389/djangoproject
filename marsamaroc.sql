@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 14 mai 2025 à 16:54
+-- Généré le : mer. 21 mai 2025 à 13:35
 -- Version du serveur : 11.7.2-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -24,24 +24,55 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure de la table `authentification_affectationengin`
+-- Structure de la table `authentification_absencerequest`
 --
 
-CREATE TABLE `authentification_affectationengin` (
+CREATE TABLE `authentification_absencerequest` (
   `id` int(11) NOT NULL,
+  `conducteur_matricule` varchar(50) NOT NULL,
+  `date_debut` date NOT NULL,
+  `date_fin` date NOT NULL,
+  `motif` enum('conge','maladie','familial','autre') NOT NULL,
+  `commentaires` text DEFAULT NULL,
+  `justificatif` varchar(255) DEFAULT NULL,
+  `statut` enum('en_attente','accepte','refuse') NOT NULL DEFAULT 'en_attente',
+  `date_demande` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `authentification_affectationdriver`
+--
+
+CREATE TABLE `authentification_affectationdriver` (
+  `id` int(11) NOT NULL,
+  `chauffeur_id` int(11) NOT NULL,
   `navire_id` int(11) NOT NULL,
-  `engin_id` int(11) NOT NULL,
-  `date_debut` datetime DEFAULT current_timestamp(),
-  `date_fin` datetime DEFAULT NULL,
-  `chauffeur_id` int(11) DEFAULT NULL
+  `date_affectation` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Déchargement des données de la table `authentification_affectationengin`
+-- Déchargement des données de la table `authentification_affectationdriver`
 --
 
-INSERT INTO `authentification_affectationengin` (`id`, `navire_id`, `engin_id`, `date_debut`, `date_fin`, `chauffeur_id`) VALUES
-(9, 96, 5, '2025-05-14 10:39:19', NULL, NULL);
+INSERT INTO `authentification_affectationdriver` (`id`, `chauffeur_id`, `navire_id`, `date_affectation`) VALUES
+(4, 23, 120, '2025-05-16 00:29:41'),
+(5, 23, 120, '2025-05-16 00:30:06'),
+(6, 23, 120, '2025-05-16 00:49:45'),
+(7, 23, 120, '2025-05-16 01:08:17'),
+(8, 23, 120, '2025-05-16 14:15:45'),
+(9, 23, 120, '2025-05-16 14:36:59'),
+(10, 23, 120, '2025-05-16 14:53:23'),
+(11, 23, 120, '2025-05-16 14:53:23'),
+(12, 23, 120, '2025-05-16 15:06:03'),
+(13, 23, 120, '2025-05-16 15:22:52'),
+(14, 23, 120, '2025-05-16 21:05:59'),
+(15, 23, 120, '2025-05-17 13:59:24'),
+(16, 28, 120, '2025-05-17 14:10:41'),
+(17, 28, 120, '2025-05-19 18:03:39'),
+(18, 28, 120, '2025-05-19 18:28:57'),
+(19, 28, 120, '2025-05-20 08:34:33');
 
 -- --------------------------------------------------------
 
@@ -72,7 +103,7 @@ CREATE TABLE `authentification_driver` (
 
 INSERT INTO `authentification_driver` (`id`, `firstname`, `lastname`, `matricule`, `phone`, `email`, `CIN`, `shiftPeriod`, `supervisor`, `equipment`, `address`, `birthdate`, `joinDate`, `is_flexible`) VALUES
 (23, 'Said', 'Aissaoui', 'MM2024', '0666555441', '', '', 'morning', 'Said', '[\"Grue mobile\"]', '80000\r\nAgadir', '2025-05-07', '2025-05-13', 0),
-(26, 'mounir', 'Aissaoui', 'MM2011', '0666555441', '', '', 'morning', 'Said', '[\"Grue mobile\"]', '80000\r\nAgadir', '2017-02-13', '2025-05-14', 0);
+(28, 'mounir', 'Aissaoui', 'MM9012', '0661234567', '', '', 'morning', 'said', '[\"Chariot \\u00e9l\\u00e9vateur\"]', '80000\nAgadir', NULL, '2025-05-08', 0);
 
 -- --------------------------------------------------------
 
@@ -83,20 +114,19 @@ INSERT INTO `authentification_driver` (`id`, `firstname`, `lastname`, `matricule
 CREATE TABLE `authentification_enginmarchandise` (
   `id` int(11) NOT NULL,
   `engin_id` int(11) NOT NULL,
-  `type_marchandise_id` bigint(20) UNSIGNED NOT NULL,
-  `date_ajout` datetime DEFAULT current_timestamp()
+  `marchandise_type` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `authentification_enginmarchandise`
 --
 
-INSERT INTO `authentification_enginmarchandise` (`id`, `engin_id`, `type_marchandise_id`, `date_ajout`) VALUES
-(1, 3, 3, '2025-05-14 00:04:16'),
-(2, 5, 1, '2025-05-14 00:13:23'),
-(3, 4, 2, '2025-05-14 00:13:23'),
-(4, 6, 3, '2025-05-14 00:13:23'),
-(5, 7, 4, '2025-05-14 00:13:23');
+INSERT INTO `authentification_enginmarchandise` (`id`, `engin_id`, `marchandise_type`) VALUES
+(11, 3, 'containers'),
+(12, 4, 'bulk'),
+(13, 5, 'general'),
+(14, 6, 'vehicles'),
+(15, 7, 'bulk');
 
 -- --------------------------------------------------------
 
@@ -107,9 +137,32 @@ INSERT INTO `authentification_enginmarchandise` (`id`, `engin_id`, `type_marchan
 CREATE TABLE `authentification_feuilleservice` (
   `id` int(11) NOT NULL,
   `navire_id` int(11) NOT NULL,
-  `date_creation` datetime DEFAULT current_timestamp(),
-  `created_by_id` int(11) NOT NULL,
-  `statut` varchar(20) DEFAULT 'draft' CHECK (`statut` in ('draft','active','completed'))
+  `date` date NOT NULL DEFAULT curdate(),
+  `published` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `authentification_feuilleservice_drivers`
+--
+
+CREATE TABLE `authentification_feuilleservice_drivers` (
+  `id` int(11) NOT NULL,
+  `feuilleservice_id` int(11) NOT NULL,
+  `driver_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `authentification_feuilleservice_engins`
+--
+
+CREATE TABLE `authentification_feuilleservice_engins` (
+  `id` int(11) NOT NULL,
+  `feuilleservice_id` int(11) NOT NULL,
+  `engin_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -140,7 +193,7 @@ CREATE TABLE `authentification_navire` (
 --
 
 INSERT INTO `authentification_navire` (`id`, `nom`, `imo`, `type_operation`, `port_origine`, `poste`, `heure_arrivee`, `duree_sejour`, `heure_depart`, `type_marchandise`, `chef_escale_id`, `statut`, `date_creation`, `date_modification`) VALUES
-(96, 'Tanger Express', '7451555', 'import', 'usa', '1', '2025-05-14 00:38:00', 4, '2025-05-14 11:38:00', 'containers', 1, 'Accosté', '2025-05-14 10:39:19', '2025-05-14 10:49:28');
+(120, 'Tanger Express', '7451544', 'import', 'usa', '1', '2025-05-16 01:29:00', 2, '2025-05-16 02:29:00', 'containers', 1, 'Terminé', '2025-05-16 01:29:31', '2025-05-17 15:10:29');
 
 -- --------------------------------------------------------
 
@@ -299,8 +352,8 @@ CREATE TABLE `auth_user` (
 --
 
 INSERT INTO `auth_user` (`id`, `password`, `last_login`, `is_superuser`, `username`, `first_name`, `last_name`, `email`, `is_staff`, `is_active`, `date_joined`) VALUES
-(1, 'pbkdf2_sha256$1000000$w1mU6MEWFb4fbRaN4wKpeS$U5jO5scUIEyOr8KarVYrSLYcufPpDxy60f8snyDe2RE=', '2025-05-13 15:53:56.314668', 1, 'said', '', '', 'saidaissaoui@marsamaroc.co.ma', 1, 1, '2025-04-24 16:51:55.374017'),
-(3, 'pbkdf2_sha256$1000000$x2oXd5PmPaxPPX9jRu5C4b$PKdTtRwMOG7LPkbpCi6wi8KJU01Q0JaJc8Rzt/56B5c=', '2025-05-12 16:58:25.995992', 1, 'Mohamed_KASMI', '', '', 'Mohamed_KASMIi@marsamaroc.co.ma', 1, 1, '2025-04-29 21:27:50.227404'),
+(1, 'pbkdf2_sha256$1000000$w1mU6MEWFb4fbRaN4wKpeS$U5jO5scUIEyOr8KarVYrSLYcufPpDxy60f8snyDe2RE=', '2025-05-21 09:58:13.764329', 1, 'said', '', '', 'saidaissaoui@marsamaroc.co.ma', 1, 1, '2025-04-24 16:51:55.374017'),
+(3, 'pbkdf2_sha256$1000000$x2oXd5PmPaxPPX9jRu5C4b$PKdTtRwMOG7LPkbpCi6wi8KJU01Q0JaJc8Rzt/56B5c=', '2025-05-17 16:55:07.619690', 1, 'Mohamed_KASMI', '', '', 'Mohamed_KASMIi@marsamaroc.co.ma', 1, 1, '2025-04-29 21:27:50.227404'),
 (14, 'pbkdf2_sha256$260000$N2Y1pZJ6...', NULL, 0, 'saad', 'Saad', 'Benali', 'saad@marsamaroc.ma', 0, 1, '2025-05-11 19:54:29.000000'),
 (15, 'pbkdf2_sha256$260000$N2Y1pZJ6...', NULL, 0, 'mohamed', 'Mohamed', 'Amrani', 'mohamed@marsamaroc.ma', 0, 1, '2025-05-11 19:54:29.000000'),
 (16, 'pbkdf2_sha256$260000$N2Y1pZJ6...', NULL, 0, 'ahmed', 'Ahmed', 'Elouardi', 'ahmed@marsamaroc.ma', 0, 1, '2025-05-11 19:54:29.000000'),
@@ -475,8 +528,9 @@ INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALU
 ('21dh9h1srcabwepv3e7jid7wf18up3a4', 'e30:1uCJgD:ZYp62tw_LCCgA2b05uha2CFjBfxJUrHxJPg36dE1Pj0', '2025-05-20 14:53:57.091858'),
 ('cr9hjjq4divrdgquw1503tlit2j0idnd', 'e30:1u80JO:oYmsK5XILpxDN4mx7g8buIBTXm5nIAAXsYbMFx2oWcU', '2025-05-08 17:24:34.402501'),
 ('nm8amp012d1mwwabg4dmpfjr410vwqva', 'e30:1u7zxQ:v3li_zGRMqRMLeDuSGI--CNsCN8wVv1QyQKqEtPTOfg', '2025-05-08 17:01:52.812443'),
+('ors6j672cnybrylomk63laoeby4b3qwy', '.eJxVjDsOwjAQBe_iGlmOvXYwJX3OEO2u1zgQxVI-FeLuJFIKaN_Mm7fqcVtLvy0y90NSN9Woy-9GyC-ZDpCeOD2q5jqt80D6UPRJF93VJOP9dP8CBZeyv42PwCGkiJQFIriUgbPE1gk5tq3xJhLYHCwEm6UFRrYUia6eXINhj851lL3ERbL6fAEefjxw:1uHgDF:DarBiLjbKR25YxdyYeP97DpxyZhiyzsFvFoEET-w1xE', '2025-06-04 09:58:13.771406'),
 ('tdqzdafp2xy5oor79m2i7qj3hhyjanuw', 'e30:1u7zqw:3rhdUc1kESvpEraWXKewoaj6AoGilshOyFLq8EysXwE', '2025-05-08 16:55:10.158203'),
-('zg2cqgt6p0xutgemsa09dty089amfej7', '.eJxVjEEOgjAQRe_StWlKOy2OS_ecgcxMp4IaSCisjHdXEha6_e-9_zI9bevQb1WXfszmYhpz-t2Y5KHTDvKdpttsZZ7WZWS7K_ag1XZz1uf1cP8OBqrDt3YRQVLKSFwUEEIuIEWxDcpBfOuiQwZfkofki7YgJJ6R-Rw5NJTM-wPulDg6:1uErx6:VW--GFjab0nG9oj5Dx9Gr-YOJPB2R0n5upUUJjXRKaQ', '2025-05-27 15:53:56.327496');
+('wx06kyb9f1sga81b2n3yg6kx1y18018i', '.eJxVjEEOgjAQRe_StWlKOy2OS_ecgcxMp4IaSCisjHdXEha6_e-9_zI9bevQb1WXfszmYhpz-t2Y5KHTDvKdpttsZZ7WZWS7K_ag1XZz1uf1cP8OBqrDt3YRQVLKSFwUEEIuIEWxDcpBfOuiQwZfkofki7YgJJ6R-Rw5NJTM-wPulDg6:1uGJXi:IR1WVW2-jLp2eEJ3Ol1Le5SpEgRHbYDO_Na1IOYUEk8', '2025-05-31 15:33:42.413122');
 
 -- --------------------------------------------------------
 
@@ -507,24 +561,29 @@ CREATE TABLE `engin` (
 --
 
 INSERT INTO `engin` (`id`, `matricule`, `type_engin`, `marque`, `modele`, `annee_fabrication`, `statut`, `maintenance_info`, `date_acquisition`, `kilometrage`, `prochaine_maintenance`, `commentaires`, `created_at`, `updated_at`, `created_by_id`) VALUES
-(3, 'E001', 'Chariot élévateur', 'Toyota', '8FGCU25', 2018, 'disponible', '', '2020-03-01', 1200.50, NULL, '', '2025-05-12 16:56:19', '2025-05-14 10:12:43', 1),
-(4, 'E002', 'Grue mobile', 'Liebherr', 'LTM 1090', 2016, 'disponible', '', '2019-06-15', 5400.00, NULL, '', '2025-05-12 16:56:19', '2025-05-14 00:42:36', 1),
-(5, 'E003', 'Portique', 'Konecranes', 'RTG', 2017, 'disponible', '', '2021-02-10', 7800.75, NULL, '', '2025-05-12 16:56:19', '2025-05-14 10:44:23', 1),
-(6, 'E004', 'Camion', 'Mercedes', 'Actros', 2019, 'disponible', '', '2022-01-20', 23000.00, NULL, '', '2025-05-12 16:56:19', '2025-05-14 00:33:40', 1),
-(7, 'E005', 'Reachstacker', 'Kalmar', 'DRF450', 2020, 'disponible', '', '2023-04-05', 5100.10, NULL, '', '2025-05-12 16:56:19', '2025-05-14 10:12:49', 1);
+(3, 'E001', 'Chariot élévateur', 'Toyota', '8FGCU25', 2018, 'disponible', '', '2020-03-01', 1200.50, NULL, '', '2025-05-12 16:56:19', '2025-05-20 19:20:35', 1),
+(4, 'E002', 'Grue mobile', 'Liebherr', 'LTM 1090', 2016, 'disponible', '', '2019-06-15', 5400.00, NULL, '', '2025-05-12 16:56:19', '2025-05-17 15:10:53', 1),
+(5, 'E003', 'Portique', 'Konecranes', 'RTG', 2017, 'disponible', '', '2021-02-10', 7800.75, NULL, '', '2025-05-12 16:56:19', '2025-05-15 23:46:56', 1),
+(6, 'E004', 'Camion', 'Mercedes', 'Actros', 2019, 'disponible', '', '2022-01-20', 23000.00, NULL, '', '2025-05-12 16:56:19', '2025-05-14 15:25:58', 1),
+(7, 'E005', 'Reachstacker', 'Kalmar', 'DRF450', 2020, 'disponible', '', '2023-04-05', 5100.10, NULL, '', '2025-05-12 16:56:19', '2025-05-16 16:06:32', 1);
 
 --
 -- Index pour les tables déchargées
 --
 
 --
--- Index pour la table `authentification_affectationengin`
+-- Index pour la table `authentification_absencerequest`
 --
-ALTER TABLE `authentification_affectationengin`
+ALTER TABLE `authentification_absencerequest`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `authentification_affectationdriver`
+--
+ALTER TABLE `authentification_affectationdriver`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_affectation_navire` (`navire_id`),
-  ADD KEY `fk_affectation_engin` (`engin_id`),
-  ADD KEY `fk_affectation_chauffeur` (`chauffeur_id`);
+  ADD KEY `chauffeur_id` (`chauffeur_id`),
+  ADD KEY `navire_id` (`navire_id`);
 
 --
 -- Index pour la table `authentification_driver`
@@ -539,16 +598,30 @@ ALTER TABLE `authentification_driver`
 --
 ALTER TABLE `authentification_enginmarchandise`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_engin_marchandise` (`engin_id`,`type_marchandise_id`),
-  ADD KEY `fk_type_marchandise` (`type_marchandise_id`);
+  ADD KEY `engin_id` (`engin_id`);
 
 --
 -- Index pour la table `authentification_feuilleservice`
 --
 ALTER TABLE `authentification_feuilleservice`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `navire_id` (`navire_id`),
-  ADD KEY `created_by_id` (`created_by_id`);
+  ADD KEY `navire_id` (`navire_id`);
+
+--
+-- Index pour la table `authentification_feuilleservice_drivers`
+--
+ALTER TABLE `authentification_feuilleservice_drivers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `feuilleservice_id` (`feuilleservice_id`),
+  ADD KEY `driver_id` (`driver_id`);
+
+--
+-- Index pour la table `authentification_feuilleservice_engins`
+--
+ALTER TABLE `authentification_feuilleservice_engins`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `feuilleservice_id` (`feuilleservice_id`),
+  ADD KEY `engin_id` (`engin_id`);
 
 --
 -- Index pour la table `authentification_navire`
@@ -657,10 +730,16 @@ ALTER TABLE `engin`
 --
 
 --
--- AUTO_INCREMENT pour la table `authentification_affectationengin`
+-- AUTO_INCREMENT pour la table `authentification_absencerequest`
 --
-ALTER TABLE `authentification_affectationengin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+ALTER TABLE `authentification_absencerequest`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pour la table `authentification_affectationdriver`
+--
+ALTER TABLE `authentification_affectationdriver`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT pour la table `authentification_driver`
@@ -672,25 +751,37 @@ ALTER TABLE `authentification_driver`
 -- AUTO_INCREMENT pour la table `authentification_enginmarchandise`
 --
 ALTER TABLE `authentification_enginmarchandise`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT pour la table `authentification_feuilleservice`
 --
 ALTER TABLE `authentification_feuilleservice`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
+-- AUTO_INCREMENT pour la table `authentification_feuilleservice_drivers`
+--
+ALTER TABLE `authentification_feuilleservice_drivers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+--
+-- AUTO_INCREMENT pour la table `authentification_feuilleservice_engins`
+--
+ALTER TABLE `authentification_feuilleservice_engins`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT pour la table `authentification_navire`
 --
 ALTER TABLE `authentification_navire`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
 
 --
 -- AUTO_INCREMENT pour la table `authentification_typemarchandise`
 --
 ALTER TABLE `authentification_typemarchandise`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT pour la table `auth_group`
@@ -763,26 +854,37 @@ ALTER TABLE `engin`
 --
 
 --
--- Contraintes pour la table `authentification_affectationengin`
+-- Contraintes pour la table `authentification_affectationdriver`
 --
-ALTER TABLE `authentification_affectationengin`
-  ADD CONSTRAINT `fk_affectation_chauffeur` FOREIGN KEY (`chauffeur_id`) REFERENCES `authentification_driver` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_affectation_engin` FOREIGN KEY (`engin_id`) REFERENCES `engin` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_affectation_navire` FOREIGN KEY (`navire_id`) REFERENCES `authentification_navire` (`id`) ON DELETE CASCADE;
+ALTER TABLE `authentification_affectationdriver`
+  ADD CONSTRAINT `authentification_affectationdriver_ibfk_1` FOREIGN KEY (`chauffeur_id`) REFERENCES `authentification_driver` (`id`),
+  ADD CONSTRAINT `authentification_affectationdriver_ibfk_2` FOREIGN KEY (`navire_id`) REFERENCES `authentification_navire` (`id`);
 
 --
 -- Contraintes pour la table `authentification_enginmarchandise`
 --
 ALTER TABLE `authentification_enginmarchandise`
-  ADD CONSTRAINT `fk_engin` FOREIGN KEY (`engin_id`) REFERENCES `engin` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_type_marchandise` FOREIGN KEY (`type_marchandise_id`) REFERENCES `authentification_typemarchandise` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `authentification_enginmarchandise_ibfk_1` FOREIGN KEY (`engin_id`) REFERENCES `engin` (`id`);
 
 --
 -- Contraintes pour la table `authentification_feuilleservice`
 --
 ALTER TABLE `authentification_feuilleservice`
-  ADD CONSTRAINT `authentification_feuilleservice_ibfk_1` FOREIGN KEY (`navire_id`) REFERENCES `authentification_navire` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `authentification_feuilleservice_ibfk_2` FOREIGN KEY (`created_by_id`) REFERENCES `auth_user` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `authentification_feuilleservice_ibfk_1` FOREIGN KEY (`navire_id`) REFERENCES `authentification_navire` (`id`);
+
+--
+-- Contraintes pour la table `authentification_feuilleservice_drivers`
+--
+ALTER TABLE `authentification_feuilleservice_drivers`
+  ADD CONSTRAINT `authentification_feuilleservice_drivers_ibfk_1` FOREIGN KEY (`feuilleservice_id`) REFERENCES `authentification_feuilleservice` (`id`),
+  ADD CONSTRAINT `authentification_feuilleservice_drivers_ibfk_2` FOREIGN KEY (`driver_id`) REFERENCES `authentification_driver` (`id`);
+
+--
+-- Contraintes pour la table `authentification_feuilleservice_engins`
+--
+ALTER TABLE `authentification_feuilleservice_engins`
+  ADD CONSTRAINT `authentification_feuilleservice_engins_ibfk_1` FOREIGN KEY (`feuilleservice_id`) REFERENCES `authentification_feuilleservice` (`id`),
+  ADD CONSTRAINT `authentification_feuilleservice_engins_ibfk_2` FOREIGN KEY (`engin_id`) REFERENCES `engin` (`id`);
 
 --
 -- Contraintes pour la table `authentification_navire`

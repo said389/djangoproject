@@ -25,7 +25,7 @@ def connexion(request):
                 if user is not None:
                     login(request, user)
                     request.session['role'] = 'chef'
-                    return redirect('chef_escale')  # صفحة رئيسية للchef
+                    return redirect('chef_escale') 
                 else:
                     messages.error(request, "Mot de passe incorrect.")
             except User.DoesNotExist:
@@ -44,7 +44,7 @@ def connexion(request):
                 full_name = f"{row[0]} {row[1]}"
                 request.session['utilisateur'] = full_name
                 request.session['role'] = 'conducteur'
-                return redirect('conducteur_home')  # صفحة خاصة بالسائق
+                return redirect('conducteur_home') 
             else:
                 messages.error(request, "Matricule incorrect.")
 

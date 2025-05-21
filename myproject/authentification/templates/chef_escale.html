@@ -29,6 +29,8 @@
             background-color: var(--gray-100);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
         }
 
         /* Sidebar Styles */
@@ -105,51 +107,96 @@
         /* Main Content Styles */
         .main-content {
             margin-left: 280px;
-            padding: 20px;
+            padding: 30px;
             transition: all 0.3s ease;
         }
 
-        /* Nouveau style pour le header bleu */
+        /* Header Styles */
         .welcome-header {
             background-color: var(--primary);
             color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
         }
 
         .welcome-logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             object-fit: contain;
         }
 
         .welcome-text h4 {
             margin-bottom: 5px;
             font-weight: 600;
+            font-size: 1.5rem;
         }
 
         .welcome-text p {
             margin-bottom: 0;
             opacity: 0.9;
+            font-size: 1rem;
         }
 
-        /* Table Styles */
+        /* Search Form */
+        .search-form {
+            margin-bottom: 0;
+            min-width: 300px;
+            margin-left: auto;
+        }
+
+        .search-form .form-control {
+            border-radius: 20px;
+            padding: 10px 15px;
+        }
+
+        .search-form .btn {
+            border-radius: 20px;
+            padding: 10px 15px;
+        }
+
+        /* Table Container */
         .table-container {
             background-color: var(--white);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            padding: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        /* Table Styles */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
         .table th {
             background-color: var(--primary);
             color: white;
             border: none;
+            padding: 12px 15px;
+            font-weight: 500;
+            vertical-align: middle;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gray-200);
         }
 
         .table-hover tbody tr:hover {
@@ -158,10 +205,12 @@
 
         /* Badge Styles */
         .badge-status {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .badge-pending {
@@ -184,15 +233,16 @@
             color: white;
         }
 
-        /* Nouveau style pour les boutons d'action */
+        /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
+            justify-content: center;
         }
 
         .action-btn {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -201,11 +251,13 @@
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 0.9rem;
         }
 
         .action-btn:hover {
             transform: scale(1.1);
             opacity: 0.9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .btn-view {
@@ -220,11 +272,38 @@
             background-color: var(--danger);
         }
 
-        /* Search Form */
-        .search-form {
-            margin-bottom: 0;
-            min-width: 250px;
-            margin-left: auto;
+        /* Pagination */
+        .pagination {
+            margin-top: 30px;
+        }
+
+        .page-item .page-link {
+            color: var(--primary);
+            border: 1px solid var(--gray-200);
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: var(--border-radius);
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .page-item.disabled .page-link {
+            color: var(--gray-600);
+        }
+
+        /* Alert Messages */
+        .alert-container {
+            margin-bottom: 25px;
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
         }
 
         /* Mobile Menu Button */
@@ -233,9 +312,24 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: var(--border-radius);
             cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-600);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-200);
             margin-bottom: 15px;
         }
 
@@ -251,6 +345,7 @@
             
             .main-content {
                 margin-left: 0;
+                padding: 20px;
             }
             
             .mobile-menu-btn {
@@ -261,11 +356,47 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
+                padding: 20px;
             }
 
             .search-form {
                 margin-left: 0;
                 width: 100%;
+                margin-top: 15px;
+            }
+
+            .table-container {
+                padding: 15px;
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 15px;
+            }
+
+            .welcome-text h4 {
+                font-size: 1.3rem;
+            }
+
+            .welcome-text p {
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .action-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -292,19 +423,15 @@
             <a href="{% url 'ajout_absence' %}">
                 <i class="fas fa-user-clock"></i> Gérer les Absences
             </a>
-            <a href="{% url 'engin_details_view' %}" class="btn btn-primary">
+            <a href="{% url 'engin_details_view' %}">
                 <i class="fas fa-truck-moving"></i> Voir les engins
             </a>
-            <a href="{% url 'conducteurs' %}" class="btn btn-primary">
-                <i class="fas fa-truck-moving"></i> Conducteurs
+            <a href="{% url 'conducteurs' %}">
+                <i class="fas fa-users"></i> Conducteurs
             </a>
-            <a href="{% url 'affecter_engins' %}" class="btn btn-primary">
-                <i class="fas fa-truck-moving"></i> affectation
+            <a href="{% url 'affecter_engins' %}">
+                <i class="fas fa-tasks"></i> Affectation
             </a>
-            
-
-
-            
             
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
@@ -317,16 +444,16 @@
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
-        <!-- Nouveau header bleu avec logo -->
+        <!-- Welcome Header -->
         <div class="welcome-header">
             <img src="https://www.boursenews.ma/uploads/actualites/67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png" 
                  alt="Logo Marsa Maroc" class="welcome-logo">
             <div class="welcome-text">
                 <h4>Bienvenue, {{ user.username }} !</h4>
-                <p>Vous êtes connecté en tant que Chef d'Escale.</p>
+                <p>Vous êtes connecté en tant que Chef d'Escale</p>
             </div>
             <form method="get" class="search-form d-flex">
-                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher..." 
+                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher un navire..." 
                        value="{{ request.GET.search }}">
                 <button type="submit" class="btn btn-light">
                     <i class="fas fa-search"></i>
@@ -346,6 +473,8 @@
         {% endif %}
 
         <div class="table-container">
+            <h3 class="table-title">Liste des Navires</h3>
+            
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead>
@@ -363,7 +492,7 @@
                     <tbody>
                         {% for navire in navires %}
                         <tr>
-                            <td>{{ navire.nom }}</td>
+                            <td><strong>{{ navire.nom }}</strong></td>
                             <td>{{ navire.imo }}</td>
                             <td>{{ navire.poste }}</td>
                             <td>{{ navire.get_type_operation_display }}</td>
@@ -390,7 +519,11 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-4">Aucun navire enregistré</td>
+                            <td colspan="8" class="empty-state">
+                                <i class="fas fa-ship"></i>
+                                <h5>Aucun navire enregistré</h5>
+                                <p>Commencez par ajouter un nouveau navire</p>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -400,16 +533,16 @@
             <!-- Pagination -->
             {% if navires.has_other_pages %}
             <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center mt-4">
+                <ul class="pagination justify-content-center">
                     {% if navires.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                            &laquo; Premier
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ navires.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                            Précédent
+                        <a class="page-link" href="?page={{ navires.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     {% endif %}
@@ -430,13 +563,13 @@
 
                     {% if navires.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ navires.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                            Suivant
+                        <a class="page-link" href="?page={{ navires.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ navires.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
-                            Dernier &raquo;
+                        <a class="page-link" href="?page={{ navires.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
                         </a>
                     </li>
                     {% endif %}
@@ -448,19 +581,19 @@
 
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script>
-        // Gestion du menu mobile
+        // Mobile menu toggle
         document.getElementById('mobileMenuBtn').addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('active');
         });
 
-        // Fonction de confirmation de suppression
+        // Confirm delete function
         function confirmDelete(url) {
             if (confirm('Êtes-vous sûr de vouloir supprimer ce navire ? Cette action est irréversible.')) {
                 window.location.href = url;
             }
         }
         
-        // Fermeture automatique des alertes après 5 secondes
+        // Auto-dismiss alerts
         document.addEventListener('DOMContentLoaded', function() {
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {

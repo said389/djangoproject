@@ -681,3 +681,8 @@ def conducteur_home(request):
     absences = AbsenceRequest.objects.filter(conducteur_matricule=nom)
     return render(request, 'conducteur_home.html', {'nom': nom, 'absences': absences})
 
+
+
+
+
+

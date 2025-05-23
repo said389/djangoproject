@@ -116,6 +116,7 @@
         .main-content {
             padding: 30px;
             width: 100%;
+            margin: 0 auto;
         }
 
         .welcome-banner {
@@ -183,15 +184,19 @@
         .card {
             background: white;
             padding: 1.5rem;
+            width: 100%; 
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             margin-bottom: 2rem;
+            
         }
+        
 
         .card h2 {
             color: var(--primary);
             margin-bottom: 1.5rem;
             font-size: 1.5rem;
+            
         }
 
         .form-group {
@@ -335,12 +340,13 @@
             color: var(--primary);
         }
 
-        .tab-content {
-            display: none;
-        }
+        
+    
 
         .tab-content.active {
             display: block;
+            width: 100%; 
+            
         }
 
         /* Menu mobile */
@@ -389,6 +395,7 @@
             
             .main-content {
                 padding: 20px;
+                width: 100%;
             }
             
             .mobile-menu-btn {
@@ -409,6 +416,9 @@
                 width: 100%;
             }
         }
+
+        
+        
     </style>
 </head>
 <body>
@@ -440,7 +450,7 @@
             </button>
 
             <div class="welcome-banner">
-                <img src="{% static 'images/marsa-maroc-logo.png' %}" alt="Logo Marsa Maroc">
+                <img src="{% static 'images/logo.png' %}" alt="Logo Marsa Maroc">
                 <div class="welcome-content">
                     <h1>Gestion des Engins Techniques</h1>
                     <p>Interface d'administration du parc d'engins</p>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -200,7 +201,8 @@ select.input option {
     <div class="login-container">
         <div class="login-box">
             <div class="logo">
-                <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.boursenews.ma%2Fuploads%2Factualites%2F67404d6660493_marsa-maroc-logo-png_seeklogo-550043.png&f=1&nofb=1&ipt=da9491c6a83d28ea6cef124ae871754f3a8969183573e68172824e1f4691c505" alt="Logo Marsa Maroc">
+                <img src="{% static 'images/logo-connexion.png' %}" 
+                alt="Logo Marsa Maroc" class="welcome-logo">
             </div>
 
             <h2 class="title">Connexion</h2>
